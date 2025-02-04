@@ -1,3 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <link rel="stylesheet" href="/css/homepage.css">
+</head>
+<body>
 
-<h1>Welcome to the Home Page</h1>
-<p>This is the home page content.</p>
+    <!-- Navbar -->
+    <header>
+        <nav class="navbar">
+            <div class="logo">
+                <span class="fuel">FUEL</span><span class="buddy">BUY</span>
+                <p>Doorstep Fuel Delivery</p>
+            </div>
+            <ul class="nav-links">
+                <li><a href="#" class="active">Home</a></li>
+                <li><a href="#about">About Us</a></li>
+                <li><a href="#contact">Contact Us</a></li>
+            </ul>
+            <a href="/login" class="order-btn">Order Fuel</a>
+        </nav>
+    </header>
+
+    <!-- Hero Section -->
+    <div class="hero-section">
+        <div class="hero-overlay">
+            <h1>Welcome to FuelBuddy</h1>
+            <p>Your Reliable Doorstep Fuel Delivery Service</p>
+        </div>
+    </div>
+
+    <!-- About Us Section -->
+    <section class="about-section" id="about">
+        <div class="container">
+            <h2>About Us</h2>
+            <p>We are <strong>FuelBuddy</strong>, your trusted doorstep fuel delivery service.</p>
+            <p>Our mission is to revolutionize fuel delivery with convenience, efficiency, and sustainability.</p>
+            <p>With cutting-edge technology and a commitment to safety, we ensure you get fuel when and where you need it.</p>
+        </div>
+    </section>
+
+    <!-- Contact Us Section -->
+    <section class="content-section" id="contact">
+        <div class="contact-container">
+            <h2>Contact Us</h2>
+            <p>We'd love to hear from you! Please fill out the form below.</p>
+        
+            <form action="#" method="POST">
+                <div class="input-group">
+                    <label for="name">Full Name</label>
+                    <input type="text" id="name" name="name" required>
+                </div>
+
+                <div class="input-group">
+                    <label for="email">Email Address</label>
+                    <input type="email" id="email" name="email" required>
+                </div>
+
+                <div class="input-group">
+                    <label for="subject">Subject</label>
+                    <input type="text" id="subject" name="subject" required>
+                </div>
+
+                <div class="input-group">
+                    <label for="message">Message</label>
+                    <textarea id="message" name="message" rows="5" required></textarea>
+                </div>
+
+                <button type="submit">Send Message</button>
+            </form>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2025 FuelBuddy. All rights reserved.</p>
+    </footer>
+
+</body>
+</html>

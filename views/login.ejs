@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - FuelBuddy</title>
+    <link rel="stylesheet" href="/css/login.css">
+</head>
+<body>
+
+    <div class="login-container">
+        <h2>Login</h2>
+        <p>Access your account</p>
+
+        <form action="#" method="POST">
+            <!-- Username Field -->
+            <div class="input-group">
+                <label for="username">Username</label>
+                <input type="text" id="username" name="username" placeholder="Enter your username" required>
+            </div>
+
+            <!-- Password Field -->
+            <div class="input-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" placeholder="Enter your password" required>
+            </div>
+
+            <!-- Role Selection -->
+            <div class="input-group">
+                <label for="role">Select Role</label>
+                <select id="role" name="role" required>
+                    <option value="">-- Select Role --</option>
+                    <option value="customer">Customer</option>
+                    <option value="admin">Admin</option>
+                    <option value="fuel-station">Fuel Station</option>
+                </select>
+            </div>
+
+            <!-- Submit Button -->
+            <button type="submit">Login</button>
+
+            <!-- Register Link -->
+            <p class="register-link">Don't have an account? <a href="/sign-up">Sign Up</a></p>
+        </form>
+    </div>
+
+</body>
+</html>

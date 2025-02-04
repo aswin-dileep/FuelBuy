@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up - FuelBuddy</title>
+    <link rel="stylesheet" href="/css/signup.css">
+</head>
+<body>
+
+    <div class="signup-container">
+        <h2>Sign Up</h2>
+        <p>Create a new account</p>
+
+        <form action="/sign-up" method="POST">
+            <!-- Username Field -->
+            <div class="input-group">
+                <label for="username">Username</label>
+                <input type="text" id="username" name="username" placeholder="Enter your username" required>
+            </div>
+
+            <!-- Email Field -->
+            <div class="input-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" name="email" placeholder="Enter your email" required>
+            </div>
+
+            <!-- Password Field -->
+            <div class="input-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" placeholder="Enter your password" required>
+            </div>
+
+            <!-- User Type Selection -->
+            <div class="input-group">
+                <label for="user-type">User Type</label>
+                <select id="user-type" name="user-type" required>
+                    <option value="">-- Select User Type --</option>
+                    <option value="customer">Customer</option>
+                    <option value="admin">Admin</option>
+                    <option value="fuel-station">Fuel Station</option>
+                </select>
+            </div>
+
+            <!-- Date of Birth Field -->
+            <div class="input-group">
+                <label for="dob">Date of Birth</label>
+                <input type="date" id="dob" name="dob" required>
+            </div>
+
+            <!-- Submit Button -->
+            <button type="submit">Sign Up</button>
+
+            <!-- Login Link -->
+            <p class="login-link">Already have an account? <a href="#">Login</a></p>
+        </form>
+    </div>
+
+</body>
+</html>
