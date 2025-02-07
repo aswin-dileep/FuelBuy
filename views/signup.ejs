@@ -16,13 +16,17 @@
             <!-- Username Field -->
             <div class="input-group">
                 <label for="username">Username</label>
-                <input type="text" id="username" name="username" placeholder="Enter your username" required>
+                <input type="text" id="username" name="name" placeholder="Enter your name" required>
             </div>
 
             <!-- Email Field -->
             <div class="input-group">
                 <label for="email">Email</label>
                 <input type="email" id="email" name="email" placeholder="Enter your email" required>
+            </div>
+            <div class="input-group">
+                <label for="phone">Phone</label>
+                <input type="number" id="email" name="Phone" placeholder="Enter your phone No" required>
             </div>
 
             <!-- Password Field -->
@@ -34,18 +38,13 @@
             <!-- User Type Selection -->
             <div class="input-group">
                 <label for="user-type">User Type</label>
-                <select id="user-type" name="user-type" required>
+                <select id="user-type" name="role" style="background-color: rgb(68, 66, 63);" required>
                     <option value="">-- Select User Type --</option>
                     <option value="customer">Customer</option>
+                    <option value="Delivery Agent">Delivery Agent</option>
                     <option value="admin">Admin</option>
                     <option value="fuel-station">Fuel Station</option>
                 </select>
-            </div>
-
-            <!-- Date of Birth Field -->
-            <div class="input-group">
-                <label for="dob">Date of Birth</label>
-                <input type="date" id="dob" name="dob" required>
             </div>
 
             <!-- Submit Button -->
