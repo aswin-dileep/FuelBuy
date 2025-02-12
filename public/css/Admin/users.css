@@ -4,7 +4,6 @@
     padding: 0;
     box-sizing: border-box;
     font-family: Arial, sans-serif;
-    
 }
 
 /* Background Image */
@@ -15,8 +14,7 @@ body {
     background-attachment: fixed;
     background-size: cover;
     background-color: #121212;
-    color: rgb(16, 16, 16);
-    
+    color: rgb(14, 14, 14);
 }
 
 /* Navbar */
@@ -31,28 +29,6 @@ body {
     top: 0;
     width: 100%;
     z-index: 1000;
-}
-
-.logo {
-    display: flex;
-    flex-direction: column;
-    color: white;
-    font-weight: bold;
-}
-
-.fuel {
-    color: white;
-    font-size: 22px;
-}
-
-.buddy {
-    color: #4CAF50;
-    font-size: 22px;
-}
-
-.logo p {
-    font-size: 12px;
-    color: #aaa;
 }
 
 .nav-links {
@@ -78,56 +54,34 @@ body {
     border-bottom: 2px solid #4CAF50;
 }
 
-/* logout button */
-
+/* Logout Button */
 .btn-danger {
-    background-color: #dc3545; /* Bootstrap Danger Red */
-    color: white; /* White text */
-    padding: 10px 20px; /* Padding for a good button size */
+    background-color: #dc3545;
+    color: white;
+    padding: 10px 15px;
     font-size: 16px;
     font-weight: bold;
     border: none;
-    border-radius: 5px; /* Slightly rounded corners */
+    border-radius: 5px;
     cursor: pointer;
     transition: 0.3s ease-in-out;
 }
 
 .btn-danger:hover {
-    background-color: #c82333; /* Darker red on hover */
+    background-color: #c82333;
 }
 
-.btn-danger:active {
-    background-color: #a71d2a; /* Even darker red when clicked */
-    transform: scale(0.98); /* Slight shrink effect */
-}
-
-.btn-danger:disabled {
-    background-color: #e4606d;
-    cursor: not-allowed;
-    opacity: 0.7;
-}
-
-
-/* Form Container 
-.container {
-    background: white;
-    padding: 30px;
-    border-radius: 10px;
-    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
-    width: 350px;
-    text-align: center;
-}*/
-
+/* Container */
 .container {
     background: white;
     padding: 20px;
     border-radius: 10px;
     box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
-    width: 350px; 
+    width: 90%;
+    max-width: 900px;
     text-align: center;
     margin: 100px auto 30px auto; /* Adjusted margin to prevent overlap with navbar */
 }
-
 
 /* Heading */
 h2 {
@@ -135,43 +89,50 @@ h2 {
     color: #333;
 }
 
-/* Input Groups */
-.input-group {
-    margin-bottom: 15px;
-    text-align: left;
-}
-
-.input-group label {
-    display: block;
-    font-weight: bold;
-    margin-bottom: 5px;
-}
-
-.input-group input, .input-group textarea {
+/* Table Styling */
+table {
     width: 100%;
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    font-size: 14px;
+    border-collapse: collapse;
+    margin-top: 10px;
 }
 
-/* Button */
-.btn-submit {
-    width: 100%;
-    background-color: #28a745;
+table th, table td {
+    border: 1px solid #ddd;
+    padding: 12px;
+    text-align: center; /* Center align for better visibility */
+}
+
+table th {
+    background-color: #4CAF50;
     color: white;
-    padding: 10px;
+}
+
+/* Button Styling */
+.btn-edit, .btn-delete {
     border: none;
+    padding: 8px 12px;
     border-radius: 5px;
-    font-size: 16px;
     cursor: pointer;
-    transition: 0.3s;
+    margin: 2px;
 }
 
-.btn-submit:hover {
-    background-color: #218838;
+.btn-edit {
+    background-color: #007bff;
+    color: white;
 }
 
+.btn-edit:hover {
+    background-color: #0056b3;
+}
+
+.btn-delete {
+    background-color: #dc3545;
+    color: white;
+}
+
+.btn-delete:hover {
+    background-color: #b02a37;
+}
 
 
 /* Footer */

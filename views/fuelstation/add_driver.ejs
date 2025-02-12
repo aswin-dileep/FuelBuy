@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Panel</title>
+    <title>Fuel station</title>
     <link rel="stylesheet" href="/css/Admin/add_fuelstation.css">
 </head>
 <body>
@@ -12,40 +12,42 @@
     <header>
         <nav class="navbar">
             <div class="logo">
-                <span class="fuel">Admin Panel</span>
+                <span class="fuel">Fuel Station</span>
                 <p>Doorstep Fuel Delivery</p>
             </div>
             <ul class="nav-links">
-                <li><a href="/admin" class="active">Home</a></li>
-                <li><a href="/admin/fuel_reg">Add Fuel Stations</a></li>              
-                <li><a href="/admin/fuelstations">Fuel Stations</a></li>
-                <li><a href="/admin/users">Users</a></li>
-                <li><a href="/" class="btn-danger">Logout</a></li>
+                <li><a href="/fuelstation" class="active">Home</a></li>
+                <li><a href="/fuelstation/driver_reg">Add Driver </a></li>               
+                <li><a href="">Stock update</a></li>
+                <li><a href="">Orders</a></li>
+                <li ><a href="/" class="btn-danger">Logout</a></li>
             </ul>
+                
         </nav>
     </header>
 
+
     <div class="container">
-        <h2>Register Your Fuel Station</h2>
-        <form action="/admin/fuel_reg" method="POST">
+        <h2>Register Delivery Driver</h2>
+        <form action="/admin/driver_reg" method="POST">
             
             <div class="input-group">
-                <label for="station-name">Fuel Station Name</label>
-                <input type="text" id="station-name" name="station-name" required>
+                <label for="station-name">Driver Name</label>
+                <input type="text" id="station-name" name="driver-name" required>
             </div>
-
+            <input type="hidden" id="station-id" name="station-name" value>
             <div class="input-group">
                 <label for="email">Email</label>
                 <input type="email" id="email" name="email" required>
             </div>
 
             <div class="input-group">
-                <label for="location">Location</label>
-                <input type="text" id="location" name="location" required>
+                <label for="location">Phone</label>
+                <input type="text" id="Phone" name="phone" required>
             </div>
 
             <div class="input-group">
-                <label for="address">Address</label>
+                <label for="address">Password</label>
                 <textarea id="address" name="address" rows="4" required></textarea>
             </div>
 

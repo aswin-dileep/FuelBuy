@@ -15,7 +15,7 @@ body {
     background-attachment: fixed;
     background-size: cover;
     background-color: #121212;
-    color: rgb(16, 16, 16);
+    color: white;
     
 }
 
@@ -106,73 +106,6 @@ body {
     cursor: not-allowed;
     opacity: 0.7;
 }
-
-
-/* Form Container 
-.container {
-    background: white;
-    padding: 30px;
-    border-radius: 10px;
-    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
-    width: 350px;
-    text-align: center;
-}*/
-
-.container {
-    background: white;
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
-    width: 350px; 
-    text-align: center;
-    margin: 100px auto 30px auto; /* Adjusted margin to prevent overlap with navbar */
-}
-
-
-/* Heading */
-h2 {
-    margin-bottom: 20px;
-    color: #333;
-}
-
-/* Input Groups */
-.input-group {
-    margin-bottom: 15px;
-    text-align: left;
-}
-
-.input-group label {
-    display: block;
-    font-weight: bold;
-    margin-bottom: 5px;
-}
-
-.input-group input, .input-group textarea {
-    width: 100%;
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    font-size: 14px;
-}
-
-/* Button */
-.btn-submit {
-    width: 100%;
-    background-color: #28a745;
-    color: white;
-    padding: 10px;
-    border: none;
-    border-radius: 5px;
-    font-size: 16px;
-    cursor: pointer;
-    transition: 0.3s;
-}
-
-.btn-submit:hover {
-    background-color: #218838;
-}
-
-
 
 /* Footer */
 /* Ensure the page takes full height */
