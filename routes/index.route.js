@@ -24,7 +24,7 @@ router.get('/login', (req, res) => {
 });
 
 // Handle Login Request
-router.post('/login', async (req, res) => {
+router.post('/login', async(req,res)=> {
     try {
         const check = await User.findOne({ email: req.body.username });
 
@@ -36,26 +36,26 @@ router.post('/login', async (req, res) => {
 
         if (isPasswordMatch) {
             // Store user details in session
-            req.session.user = {
-                id: check._id,
-                name: check.name,
-                email: check.email,
-                role: check.role
-            };
-
-            console.log("User logged in:", req.session.user);
+            req.session.userId = check._id; 
+            req.session.email = check.email;
+            req.session.role = check.role;
 
             // Redirect based on role
-            if (check.role === "admin") return res.redirect('/admin');
-            if (check.role === "customer") return res.redirect('/user');
-            if (check.role === "fuel-station") return res.redirect('/fuelstation');
-            return res.redirect('/driver');
+            if (check.role == "admin") {
+                return res.redirect('/admin');
+            } else if (check.role == "customer") {
+                return res.redirect("/user");
+            } else if (check.role == "fuel-station") {
+                return res.redirect("/fuelstation");
+            } else {
+                return res.redirect("/driver");
+            }
         } else {
             res.send("Wrong password");
         }
     } catch (error) {
-        console.error(error);
-        res.send("Something went wrong. Please try again.");
+        console.log(error);
+        res.send("Something went wrong, please try again");
     }
 });
 
