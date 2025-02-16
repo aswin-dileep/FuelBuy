@@ -55,18 +55,20 @@ router.post('/login', async (req, res) => {
         // Store user details in session
         req.session.userId = user._id;
         req.session.email = user.email;
-
+        
+        console.log(req.session);
         // Determine user role & redirect accordingly
         if (user instanceof User) {
             req.session.role = "Admin";
-
+            req.session.name = user.name;
                 return res.redirect('/admin');
             
         } else if (user instanceof FuelStation) {
             req.session.role = "FuelStation";
+            req.session.name = user.stationName;
             return res.redirect("/fuelstation");
         }
-
+       
         // If role is somehow unknown, return an error
         return res.send("Invalid user role");
 

@@ -3,13 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fuel station</title>
-    <link rel="stylesheet" href="/css/Admin/add_fuelstation.css">
+    <title>Register Driver</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/css/fuelstation/add_driver.css">
 </head>
 <body>
 
-    <!-- Navbar -->
-    <header>
+     <!-- Navbar -->
+     <header>
         <nav class="navbar">
             <div class="logo">
                 <span class="fuel">Fuel Station</span>
@@ -17,7 +18,7 @@
             </div>
             <ul class="nav-links">
                 <li><a href="/fuelstation" class="active">Home</a></li>
-                <li><a href="/fuelstation/driver_reg">Add Driver </a></li>               
+                <li><a href="/fuelstation/driver_reg">Add Driver </a></li>              
                 <li><a href="">Stock update</a></li>
                 <li><a href="">Orders</a></li>
                 <li ><a href="/" class="btn-danger">Logout</a></li>
@@ -28,37 +29,41 @@
 
 
     <div class="container">
-        <h2>Register Delivery Driver</h2>
-        <form action="/fuelstation/driver_reg" method="POST">
-            
-            <div class="input-group">
-                <label for="station-name">Driver Name</label>
-                <input type="text" id="station-name" name="name" required>
-            </div>
-            <input type="hidden" id="station-id" name="stationId" value="<%= user.userId %>">
+        <div class="register-form">
+            <h2 class="text-center">Register Delivery Driver</h2>
 
-            <div class="input-group">
-                <label for="email">Email</label>
-                <input type="email" id="email" name="email" required>
-            </div>
+            <form action="/fuelstation/driver_reg" method="POST">
+                
+                <div class="mb-3">
+                    <label for="name" class="form-label">Driver Name</label>
+                    <input type="text" class="form-control" id="name" name="name" required>
+                </div>
 
-            <div class="input-group">
-                <label for="location">Phone</label>
-                <input type="text" id="Phone" name="phone" required>
-            </div>
-            <div class="input-group">
-                <label for="location">vehicle Capacity</label>
-                <input type="text" id="Phone" name="Capacity" required>
-            </div>
+                <div class="mb-3">
+                    <label for="email" class="form-label">Email</label>
+                    <input type="email" class="form-control" id="email" name="email" required>
+                </div>
 
-            <div class="input-group">
-                <label for="location">Password</label>
-                <input type="password" id="Phone" name="password" required>
-            </div>
-            
+                <div class="mb-3">
+                    <label for="phone" class="form-label">Phone</label>
+                    <input type="text" class="form-control" id="phone" name="phone" required>
+                </div>
 
-            <button type="submit" class="btn-submit">Register</button>
-        </form>
+                <div class="mb-3">
+                    <label for="password" class="form-label">Password</label>
+                    <input type="password" class="form-control" id="password" name="password" required>
+                </div>
+
+                <div class="mb-3">
+                    <label for="vehicleCapacity" class="form-label">Vehicle Capacity</label>
+                    <input type="text" class="form-control" id="vehicleCapacity" name="vehicleCapacity" required>
+                </div>
+
+                <input type="hidden" name="fuelStationId" value="<%= user.userId %>">
+
+                <button type="submit" class="btn btn-primary w-100">Register Driver</button>
+            </form>
+        </div>
     </div>
 
     <!-- Footer -->

@@ -1,5 +1,6 @@
 const express = require('express')
 const User = require('../models/user.model');
+const driver = require('../models/driver.model');
 const bcrypt = require('bcrypt');
 const router = express.Router();
 
@@ -14,7 +15,7 @@ router.get('/driver_reg',(req,res)=>{
 })
 
 router.post('/driver_reg',async(req,res)=>{
-    const userExist = await User.findOne({ email: req.body.email });
+    const userExist = await driver.findOne({ email: req.body.email });
 
         if (userExist) {
             return res.send("<h1>User already exists</h1>");
@@ -24,18 +25,17 @@ router.post('/driver_reg',async(req,res)=>{
         const hashedPassword = await bcrypt.hash(req.body.password, 10);
 
         // Create New User
-        const newUser = new User({
+        const newDriver = new driver({
             name: req.body.name,
-            role: 'Driver',
             email: req.body.email,
             phone: req.body.phone,
-            fuelStationId: req.body.stationId,
+            fuelStationId: req.body.fuelStationId,
             vehicleCapacity:req.body.Capacity,
             password: hashedPassword
         });
 
-        await newUser.save();
-        res.redirect('/fuel-station');
+        await newDriver.save();
+        res.redirect('/fuelstation');
 })
 
 module.exports = router;
