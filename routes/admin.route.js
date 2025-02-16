@@ -1,5 +1,7 @@
 const express = require('express')
 const Users = require('../models/user.model')
+const FuelStation = require('../models/fuelstation.model');
+const bcrypt = require('bcrypt');
 const router = express.Router();
 
 
@@ -11,6 +13,41 @@ router.get('/fuel_reg',(req,res)=>{
     res.render('admin/add_fuelstation')
 })
 
+router.post("/fuel_reg", async (req, res) => {
+    try {
+        console.log("Received data:", req.body);
+
+        const { stationName, email, phone, location, latitude, longitude, password } = req.body;
+        
+        const hashedPassword = await bcrypt.hash(req.body.password, 10);
+
+        if (!stationName || !email || !phone || !location || !latitude || !longitude || !password) {
+            return res.status(400).send("All fields are required!");
+        }
+
+        const existingStation = await FuelStation.findOne({ email });
+        if (existingStation) {
+            return res.status(400).send("Fuel station with this email already exists!");
+        }
+
+        const newStation = new FuelStation({ 
+            stationName, 
+            email, 
+            phone, 
+            location,
+            password:hashedPassword, 
+            coordinates: { lat: latitude, lng: longitude } // Store coordinates
+        });
+
+        await newStation.save();
+        res.redirect("/admin/fuelstations");
+    } catch (error) {
+        console.error("Error registering fuel station:", error);
+        res.status(500).send("Internal Server Error");
+    }
+});
+
+
 router.get('/users', async (req, res) => {
     try {
         const users = await Users.find({ role: "customer" }); // Use await
@@ -20,6 +57,10 @@ router.get('/users', async (req, res) => {
         res.status(500).send("Server Error");
     }
 });
+
+router.post('/users',async (req,res)=>{
+       res.render('')
+})
 
 router.get('/users/:id', async (req, res) => {
     try {
@@ -48,8 +89,8 @@ router.post('/users/:id/delete', async (req, res) => {
 
 router.get('/fuelstations', async (req, res) => {
     try {
-        const users = await Users.find({ role: "fuel-station" }); // Use await
-        res.render('admin/fuelstations', { user: users }); // Pass correct variable
+        const FS = await  FuelStation.find(); // Use await
+        res.render('admin/fuelstations', { stations: FS }); // Pass correct variable
     } catch (err) {
         console.error(err);
         res.status(500).send("Server Error");

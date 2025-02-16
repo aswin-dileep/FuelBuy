@@ -5,6 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Panel</title>
     <link rel="stylesheet" href="/css/Admin/add_fuelstation.css">
+    <script src="https://maps.gomaps.pro/maps/api/js?key=AlzaSyX4cT55LM1BfZZZaS98QrQAlOC6w3pUyfv&libraries=places"></script>
+    <style>
+        #map {
+            height: 300px; 
+            width: 100%;
+            margin-top: 10px;
+            border-radius: 10px;
+        }
+    </style>
 </head>
 <body>
 
@@ -28,27 +37,38 @@
     <div class="container">
         <h2>Register Your Fuel Station</h2>
         <form action="/admin/fuel_reg" method="POST">
-            
             <div class="input-group">
                 <label for="station-name">Fuel Station Name</label>
-                <input type="text" id="station-name" name="station-name" required>
+                <input type="text" id="station-name" name="stationName" required>
             </div>
-
+        
             <div class="input-group">
                 <label for="email">Email</label>
                 <input type="email" id="email" name="email" required>
             </div>
+        
+            <div class="input-group">
+                <label for="phone">Phone</label>
+                <input type="text" id="phone" name="phone" required>
+            </div>
 
+            <div class="input-group">
+                <label for="phone">Password</label>
+                <input type="password" id="phone" name="password" required>
+            </div>
+        
             <div class="input-group">
                 <label for="location">Location</label>
                 <input type="text" id="location" name="location" required>
             </div>
 
-            <div class="input-group">
-                <label for="address">Address</label>
-                <textarea id="address" name="address" rows="4" required></textarea>
-            </div>
-
+            <!-- Hidden Fields for Coordinates -->
+            <input type="hidden" id="latitude" name="latitude">
+            <input type="hidden" id="longitude" name="longitude">
+            
+            <!-- Map Preview -->
+            <div id="map"></div>
+        
             <button type="submit" class="btn-submit">Register</button>
         </form>
     </div>
@@ -57,6 +77,47 @@
     <footer>
         <p>&copy; 2025 FuelBuddy. All rights reserved.</p>
     </footer>
+
+    <script>
+        let map;
+        let marker;
+
+        function initAutocomplete() {
+            var input = document.getElementById('location');
+            var autocomplete = new google.maps.places.Autocomplete(input);
+            autocomplete.setFields(['formatted_address', 'geometry']);
+
+            map = new google.maps.Map(document.getElementById('map'), {
+                center: { lat: 20.5937, lng: 78.9629 }, // Default: India center
+                zoom: 5
+            });
+
+            marker = new google.maps.Marker({
+                map: map
+            });
+
+            autocomplete.addListener('place_changed', function() {
+                var place = autocomplete.getPlace();
+                if (!place.geometry) {
+                    return;
+                }
+
+                // Set the input value to formatted address
+                input.value = place.formatted_address;
+
+                // Set latitude and longitude in hidden inputs
+                document.getElementById('latitude').value = place.geometry.location.lat();
+                document.getElementById('longitude').value = place.geometry.location.lng();
+
+                // Move marker & map center to selected place
+                map.setCenter(place.geometry.location);
+                map.setZoom(15);
+                marker.setPosition(place.geometry.location);
+            });
+        }
+
+        google.maps.event.addDomListener(window, 'load', initAutocomplete);
+    </script>
 
 </body>
 </html>

@@ -1,5 +1,8 @@
 const express = require("express");
 const User = require('../models/user.model');
+const FuelStation = require('../models/fuelstation.model');
+const driver = require('../models/driver.model');
+const customer = require('../models/customer.model');
 const bcrypt = require('bcrypt');
 const session = require('express-session');
 
@@ -24,40 +27,55 @@ router.get('/login', (req, res) => {
 });
 
 // Handle Login Request
-router.post('/login', async(req,res)=> {
+router.post('/login', async (req, res) => {
     try {
-        const check = await User.findOne({ email: req.body.username });
+        const email = req.body.username;
+        const password =  req.body.password;
 
-        if (!check) {
+        // Check in User model (Admin, Driver, Customer)
+        let user = await User.findOne({ email });
+
+        // If not found, check in FuelStation model
+        if (!user) {
+            user = await FuelStation.findOne({ email });
+        }
+
+        // If user still not found, return error
+        if (!user) {
             return res.send("Username not found");
         }
 
-        const isPasswordMatch = await bcrypt.compare(req.body.password, check.password);
+        // Compare hashed password
+        const isPasswordMatch = await bcrypt.compare(password, user.password);
 
-        if (isPasswordMatch) {
-            // Store user details in session
-            req.session.userId = check._id; 
-            req.session.email = check.email;
-            req.session.role = check.role;
-
-            // Redirect based on role
-            if (check.role == "admin") {
-                return res.redirect('/admin');
-            } else if (check.role == "customer") {
-                return res.redirect("/user");
-            } else if (check.role == "fuel-station") {
-                return res.redirect("/fuelstation");
-            } else {
-                return res.redirect("/driver");
-            }
-        } else {
-            res.send("Wrong password");
+        if (!isPasswordMatch) {
+            return res.send("Wrong password");
         }
+
+        // Store user details in session
+        req.session.userId = user._id;
+        req.session.email = user.email;
+
+        // Determine user role & redirect accordingly
+        if (user instanceof User) {
+            req.session.role = "Admin";
+
+                return res.redirect('/admin');
+            
+        } else if (user instanceof FuelStation) {
+            req.session.role = "FuelStation";
+            return res.redirect("/fuelstation");
+        }
+
+        // If role is somehow unknown, return an error
+        return res.send("Invalid user role");
+
     } catch (error) {
-        console.log(error);
+        console.error(error);
         res.send("Something went wrong, please try again");
     }
 });
+
 
 // Signup Page
 router.get('/sign-up', (req, res) => {

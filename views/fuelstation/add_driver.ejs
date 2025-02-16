@@ -29,13 +29,13 @@
 
     <div class="container">
         <h2>Register Delivery Driver</h2>
-        <form action="/admin/driver_reg" method="POST">
+        <form action="/fuelstation/driver_reg" method="POST">
             
             <div class="input-group">
                 <label for="station-name">Driver Name</label>
-                <input type="text" id="station-name" name="driver-name" required>
+                <input type="text" id="station-name" name="name" required>
             </div>
-            <input type="hidden" id="station-id" name="station-id" value="<%= user.userId %>">
+            <input type="hidden" id="station-id" name="stationId" value="<%= user.userId %>">
 
             <div class="input-group">
                 <label for="email">Email</label>
@@ -46,11 +46,16 @@
                 <label for="location">Phone</label>
                 <input type="text" id="Phone" name="phone" required>
             </div>
+            <div class="input-group">
+                <label for="location">vehicle Capacity</label>
+                <input type="text" id="Phone" name="Capacity" required>
+            </div>
 
             <div class="input-group">
-                <label for="address">Password</label>
-                <textarea id="address" name="address" rows="4" required></textarea>
+                <label for="location">Password</label>
+                <input type="password" id="Phone" name="password" required>
             </div>
+            
 
             <button type="submit" class="btn-submit">Register</button>
         </form>

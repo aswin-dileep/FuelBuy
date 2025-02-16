@@ -36,7 +36,7 @@ app.use('/fuelstation',fuelstationRouter);
 
 
 
-mongoose.connect(MONGO_URL)
+mongoose.connect("mongodb://localhost:27017/fuelbuy")
     .then(()=> { console.log("Database Connection Successfull") })
     .catch((err)=> { console.log("Received an Error in database") })
 
@@ -46,7 +46,7 @@ app.use(session({
     resave: false,
     saveUninitialized: false,
     store: MongoStore.create({
-        mongoUrl: MONGO_URL,
+        mongoUrl: "mongodb://localhost:27017/fuelbuy",
         collectionName: 'sessions'
     }),
     cookie: {

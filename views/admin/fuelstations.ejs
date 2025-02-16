@@ -33,18 +33,20 @@
                     <th>Name</th>
                     <th>Email</th>
                     <th>Phone</th>
+                    <th>Location</th>
                     <th>Actions</th>
                 </tr>
             </thead>
             <tbody>
-                <% user.forEach((user) =>{ %>
+                <% stations.forEach((station) =>{ %>
                     <tr>
-                        <td><%= user.name %></td>
-                        <td><%= user.email %></td>
-                        <td><%= user.phone %></td>
+                        <td><%= station.stationName %></td>
+                        <td><%= station.email %></td>
+                        <td><%= station.phone %></td>
+                        <td><%= station.location %></td>
                         <td>
-                            <button class="btn-edit"> <a href="/admin/users/<%= user._id %>" style="text-decoration: none; color: aliceblue;"> Edit </a> </button>
-                            <form action="/admin/users/<%= user._id %>/delete" method="POST" style="display:inline;">
+                            <button class="btn-edit"> <a href="/admin/users/<%= station._id %>" style="text-decoration: none; color: aliceblue;"> Edit </a> </button>
+                            <form action="/admin/users/<%= station._id %>/delete" method="POST" style="display:inline;">
                                 <button class="btn-delete" type="submit">Delete</button>
                             </form>                      
                         </td>
