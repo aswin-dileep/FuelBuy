@@ -1,8 +1,8 @@
 const express = require("express");
 const User = require('../models/user.model');
 const FuelStation = require('../models/fuelstation.model');
-const driver = require('../models/driver.model');
-const customer = require('../models/customer.model');
+const Driver = require('../models/driver.model');
+const Customer = require('../models/customer.model');
 const bcrypt = require('bcrypt');
 const session = require('express-session');
 
@@ -39,6 +39,15 @@ router.post('/login', async (req, res) => {
         if (!user) {
             user = await FuelStation.findOne({ email });
         }
+        // if not found, check in driver model
+        if(!user){
+            user = await Driver.findOne({email})
+        }
+
+        // if not found, check in customer model
+        if(!user){
+            user = await Customer.findOne({email})
+        }
 
         // If user still not found, return error
         if (!user) {
@@ -67,6 +76,14 @@ router.post('/login', async (req, res) => {
             req.session.role = "FuelStation";
             req.session.name = user.stationName;
             return res.redirect("/fuelstation");
+        }else if (user instanceof Driver){
+            req.session.role = "Driver";
+            req.session.name = user.name;
+            return res.redirect("/driver");
+        }else{
+            req.session.role = "Customer";
+            req.session.name = user.name;
+            return res.redirect("/user")
         }
        
         // If role is somehow unknown, return an error
@@ -87,31 +104,33 @@ router.get('/sign-up', (req, res) => {
 // Handle Signup Request
 router.post('/sign-up', async (req, res) => {
     try {
-        // Check if user already exists
-        const userExist = await User.findOne({ email: req.body.email });
+        const { name, email, phone, password } = req.body;
 
-        if (userExist) {
-            return res.send("<h1>User already exists</h1>");
+        // Check if the customer already exists
+        const customerExist = await Customer.findOne({ email });
+
+        if (customerExist) {
+            return res.status(400).send("<h1>Customer already exists</h1>");
         }
 
-        // Hash Password
-        const hashedPassword = await bcrypt.hash(req.body.password, 10);
+        // Hash the password before saving
+        const hashedPassword = await bcrypt.hash(password, 10);
 
-        // Create New User
-        const newUser = new User({
-            name: req.body.name,
-            role: req.body.role,
-            email: req.body.email,
-            phone: req.body.phone,
+        // Create a new customer
+        const newCustomer = new Customer({
+            name,
+            email,
+            phone,
             password: hashedPassword
         });
 
-        await newUser.save();
+        await newCustomer.save();
 
-        res.redirect('/login'); // Redirect to login after signup
+        res.redirect('/login'); // Redirect to login page after successful sign-up
+
     } catch (error) {
         console.error(error);
-        res.send("Error creating user. Please try again.");
+        res.status(500).send("Error creating customer. Please try again.");
     }
 });
 
