@@ -1,0 +1,19 @@
+[{
+  "_id": {
+    "$oid": "67b21908e161365547ec8a2a"
+  },
+  "name": "Driver1",
+  "email": "driver1@gmail.com",
+  "phone": 987609876,
+  "password": "$2b$10$/zql940zjCFgc.OkVz/ONeY0zaVJxd2HtUnWwVgTSySzGXNpw1lFC",
+  "fuelStationId": {
+    "$oid": "67af7fe5342427c440770e56"
+  },
+  "createdAt": {
+    "$date": "2025-02-16T16:57:44.495Z"
+  },
+  "updatedAt": {
+    "$date": "2025-02-16T16:57:44.495Z"
+  },
+  "__v": 0
+}]

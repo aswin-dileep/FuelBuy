@@ -1,0 +1,48 @@
+[{
+  "_id": {
+    "$oid": "67af7fe5342427c440770e56"
+  },
+  "stationName": "FuelStation 1",
+  "email": "FuelStation1@gmail.com",
+  "phone": "5555555555",
+  "location": "2JW8+H5X, Mathirappilly, Kothamangalam, Kerala 686691, India",
+  "coordinates": {
+    "lat": 10.0464955,
+    "lng": 76.615481
+  },
+  "createdAt": {
+    "$date": "2025-02-14T17:39:49.060Z"
+  },
+  "updatedAt": {
+    "$date": "2025-02-14T17:39:49.060Z"
+  },
+  "__v": 0,
+  "password": "$2b$10$01GqNqxSj6/TlZe5gO/kCe1XEYWlfALngLBhPlW6FPq86VEdSgLWC",
+  "fuel": {
+    "$numberLong": "10000"
+  }
+},
+{
+  "_id": {
+    "$oid": "67af85eff01fac2778011059"
+  },
+  "stationName": "FuelStation 2",
+  "email": "FuelStation2@gmail.com",
+  "phone": "6666666666",
+  "location": "Thankalam, Kothamangalam, Kerala 686691, India",
+  "password": "$2b$10$01GqNqxSj6/TlZe5gO/kCe1XEYWlfALngLBhPlW6FPq86VEdSgLWC",
+  "coordinates": {
+    "lat": 10.06678,
+    "lng": 76.61596
+  },
+  "createdAt": {
+    "$date": "2025-02-14T18:05:35.369Z"
+  },
+  "updatedAt": {
+    "$date": "2025-02-14T18:05:35.369Z"
+  },
+  "__v": 0,
+  "fuel": {
+    "$numberLong": "20000"
+  }
+}]

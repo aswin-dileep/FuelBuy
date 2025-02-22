@@ -1,0 +1,19 @@
+[{
+  "_id": {
+    "$oid": "67add37b868bfa8c0e5bb1fc"
+  },
+  "name": "Aswin Dileep",
+  "email": "aswindileep22@gmail.com",
+  "password": "$2b$10$WozyV6LpCvvAYBMTTWl90.IbtXyNPtQOKvqHcMah0A6cgbYJBZjvK",
+  "role": "admin",
+  "createdAt": {
+    "$date": "2025-02-13T11:11:55.886Z"
+  },
+  "updatedAt": {
+    "$date": "2025-02-13T11:11:55.886Z"
+  },
+  "__v": 0,
+  "phone": {
+    "$numberLong": "1234567890"
+  }
+}]
