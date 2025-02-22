@@ -80,14 +80,12 @@ router.post('/login', async (req, res) => {
             req.session.role = "Driver";
             req.session.name = user.name;
             return res.redirect("/driver");
-        }else{
+        }else {
             req.session.role = "Customer";
             req.session.name = user.name;
             return res.redirect("/user")
         }
        
-        // If role is somehow unknown, return an error
-        return res.send("Invalid user role");
 
     } catch (error) {
         console.error(error);

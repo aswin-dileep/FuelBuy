@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fuel Stock Update</title>
+    <link rel="stylesheet" href="/css/fuelstation/stock_update.css">
+</head>
+<body>
+
+    <!-- Header -->
+    <%- include('header.ejs') %>
+
+    <!-- Main Content -->
+    <div class="container">
+        <h2 class="title">Fuel Stock Update</h2>
+
+        <!-- Fuel Stock Card -->
+        <div class="stock-card">
+            <div class="stock-info">
+                <h3>Fuel Stock</h3>
+                <div class="progress-circle">
+                    <span class="stock-value" id="stockValue">5000 L</span>
+                </div>
+            </div>
+
+            <!-- Inline Input for Updating Stock -->
+            <div class="update-section">
+                <input type="number" id="newStock" placeholder="Enter new stock" min="1">
+                <button class="update-btn" onclick="updateStock()">Update Stock</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2025 FuelBuddy. All rights reserved.</p>
+    </footer>
+
+    <script>
+        function updateStock() {
+            const newStock = document.getElementById("newStock").value;
+
+            if (!newStock || newStock <= 0) {
+                alert("Please enter a valid stock value.");
+                return;
+            }
+
+            // Update the stock value on the page
+            document.getElementById("stockValue").innerText = `${newStock} L`;
+
+            // Send updated stock to the backend
+            fetch("/update-stock", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ stock: newStock })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert("Stock updated successfully!");
+                } else {
+                    alert("Error updating stock. Try again.");
+                }
+            })
+            .catch(error => console.error("Error:", error));
+        }
+    </script>
+
+</body>
+</html>

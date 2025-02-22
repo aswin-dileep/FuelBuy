@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - Fuel Stations</title>
+    <link rel="stylesheet" href="/css/user/fuelstations.css">
+</head>
+<body>
+
+    <%- include('header.ejs') %>
+
+    <div class="container">
+        
+        
+        <div class="stations-grid">
+            <% stations.forEach((station) => { %>
+                <div class="station-card">
+                    <img src="/img/fuelstation.png" alt="Fuel Station" class="station-image">
+                    <h3><%= station.stationName %></h3>
+                    <p><strong>Location:</strong> <%= station.location %></p>
+                    <a href="/admin/users/<%= station._id %>" class="btn-order">Order</a>
+                </div>
+            <% }) %>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2025 FuelBuddy. All rights reserved.</p>
+    </footer>
+
+</body>
+</html>

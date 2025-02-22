@@ -1,0 +1,183 @@
+/* General Styles */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+    
+}
+
+/* Background Image */
+body {
+    background-image: url('../../img/adminhome.jpg');
+    background-repeat: no-repeat;
+    background-position: center;
+    background-attachment: fixed;
+    background-size: cover;
+    background-color: #121212;
+    color: white;
+    
+}
+
+/* Navbar */
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 50px;
+    background-color: rgba(18, 18, 18, 0.9); /* Dark semi-transparent */
+    color: white;
+    position: fixed;
+    top: 0;
+    width: 100%;
+    z-index: 1000;
+}
+
+.logo {
+    display: flex;
+    flex-direction: column;
+    color: white;
+    font-weight: bold;
+}
+
+.fuel {
+    color: white;
+    font-size: 22px;
+}
+
+.buddy {
+    color: #4CAF50;
+    font-size: 22px;
+}
+
+.logo p {
+    font-size: 12px;
+    color: #aaa;
+}
+
+.nav-links {
+    list-style: none;
+    display: flex;
+    gap: 25px;
+}
+
+.nav-links li {
+    display: inline;
+}
+
+.nav-links a {
+    text-decoration: none;
+    color: white;
+    font-size: 16px;
+    font-weight: bold;
+    transition: 0.3s ease;
+}
+
+.nav-links a:hover, .nav-links .active {
+    color: #4CAF50;
+    border-bottom: 2px solid #4CAF50;
+}
+
+/* logout button */
+
+.btn-danger {
+    background-color: #dc3545; /* Bootstrap Danger Red */
+    color: white; /* White text */
+    padding: 10px 20px; /* Padding for a good button size */
+    font-size: 16px;
+    font-weight: bold;
+    border: none;
+    border-radius: 5px; /* Slightly rounded corners */
+    cursor: pointer;
+    transition: 0.3s ease-in-out;
+}
+
+.btn-danger:hover {
+    background-color: #c82333; /* Darker red on hover */
+}
+
+.btn-danger:active {
+    background-color: #a71d2a; /* Even darker red when clicked */
+    transform: scale(0.98); /* Slight shrink effect */
+}
+
+.btn-danger:disabled {
+    background-color: #e4606d;
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+.container {
+    
+    width: 90%;
+    margin: 100px auto;
+    text-align: center;
+}
+
+/* Title Styling */
+.title {
+    font-size: 28px;
+    font-weight: bold;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+/* Grid Layout for Cards */
+.stations-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+    justify-content: center;
+    padding: 20px;
+}
+
+/* Individual Station Card */
+.station-card {
+    background: rgba(255, 255, 255, 0.9); /* Light background */
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.3);
+    text-align: center;
+    color: black;
+    transition: 0.3s ease-in-out;
+}
+
+.station-image {
+    width: 200px; /* Adjust size */
+    height: 200px;
+    margin-bottom: 10px;
+    border-radius: 5px; /* Optional */
+}
+
+.station-card:hover {
+    transform: scale(1.05);
+}
+
+/* Order Button */
+.btn-order {
+    display: inline-block;
+    background: #4CAF50;
+    color: white;
+    text-decoration: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    font-size: 16px;
+    font-weight: bold;
+    margin-top: 10px;
+    transition: 0.3s ease-in-out;
+}
+
+.btn-order:hover {
+    background: #218838;
+}
+
+/* Footer */
+footer {
+    width: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    text-align: center;
+    padding: 10px;
+    color: white;
+    position: fixed;
+    bottom: 0;
+}

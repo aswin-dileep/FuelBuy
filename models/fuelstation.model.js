@@ -9,7 +9,8 @@ const fuelStationSchema = new mongoose.Schema({
     coordinates: {
         lat: Number,
         lng: Number
-    }
+    },
+    fuel:Number,
 },{ timestamps: true });
 
 const FuelStation = mongoose.model("FuelStation", fuelStationSchema);

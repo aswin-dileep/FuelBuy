@@ -38,4 +38,9 @@ router.post('/driver_reg',async(req,res)=>{
         res.redirect('/fuelstation');
 })
 
+
+router.get("/stock",(req,res)=>{
+    res.render('fuelstation/stock_update')
+})
+
 module.exports = router;
