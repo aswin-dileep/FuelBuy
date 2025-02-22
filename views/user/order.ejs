@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Fuel</title>
+    <link rel="stylesheet" href="/css/user/order.css">
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAJ4yvtBIxATyVzCqqlQ13tLs7wrTndENg&libraries=places"></script>
+</head>
+<body>
+    <%- include('header.ejs') %>
+
+    <div class="container">
+        <h2>Order Fuel</h2>
+        <form action="/submit-order" method="POST">
+            <label for="station">Fuel Station:</label>
+            <input type="text" id="station" name="station" value="<%= station.stationName %>" readonly>
+
+    
+            <label for="quantity">Quantity (Liters):</label>
+            <input type="number" id="quantity" name="quantity" min="1" required>
+
+            <!-- Delivery Address Selection -->
+            <label>Delivery Address:</label>
+            <div class="address-options">
+                <input type="radio" id="manual" name="addressType" value="manual" checked onclick="toggleAddressMethod()">
+                <label for="manual">Enter Manually</label>
+
+                <input type="radio" id="location" name="addressType" value="location" onclick="toggleAddressMethod()">
+                <label for="location">Use My Location</label>
+            </div>
+
+            <!-- Manual Address Input -->
+            <textarea id="manual-address" name="manualAddress" placeholder="Enter your address"></textarea>
+
+            <!-- Location-based Address -->
+            <button type="button" id="get-location" onclick="getCurrentLocation()">Get My Location</button>
+            <input type="text" id="location-address" name="locationAddress" placeholder="Location will appear here" readonly style="display: none;">
+
+            <label for="date">Preferred Delivery Date:</label>
+            <input type="date" id="date" name="date" required>
+
+            <button type="submit" class="btn-submit">Place Order</button>
+        </form>
+    </div>
+
+    <footer>
+        <p>&copy; 2025 FuelBuddy. All rights reserved.</p>
+    </footer>
+
+    <script>
+        function toggleAddressMethod() {
+            const manualAddress = document.getElementById('manual-address');
+            const locationAddress = document.getElementById('location-address');
+            const getLocationBtn = document.getElementById('get-location');
+
+            if (document.getElementById('manual').checked) {
+                manualAddress.style.display = "block";
+                locationAddress.style.display = "none";
+                getLocationBtn.style.display = "none";
+            } else {
+                manualAddress.style.display = "none";
+                locationAddress.style.display = "block";
+                getLocationBtn.style.display = "block";
+            }
+        }
+
+        function getCurrentLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    function(position) {
+                        const lat = position.coords.latitude;
+                        const lng = position.coords.longitude;
+                        const geocoder = new google.maps.Geocoder();
+                        const latlng = new google.maps.LatLng(lat, lng);
+
+                        geocoder.geocode({ location: latlng }, function(results, status) {
+                            if (status === "OK") {
+                                if (results[0]) {
+                                    document.getElementById("location-address").value = results[0].formatted_address;
+                                } else {
+                                    alert("No address found.");
+                                }
+                            } else {
+                                alert("Geocoder failed due to: " + status);
+                            }
+                        });
+                    },
+                    function(error) {
+                        alert("Geolocation failed: " + error.message);
+                    }
+                );
+            } else {
+                alert("Geolocation is not supported by this browser.");
+            }
+        }
+    </script>
+
+</body>
+</html>

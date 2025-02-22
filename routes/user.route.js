@@ -17,4 +17,13 @@ router.get('/fuelstations', async (req, res) => {
         res.status(500).send("Server Error");
     }
 });
+
+//orders
+
+router.get('/order/:id',async (req,res)=>{
+    const id = req.params.id
+    const FS = await FuelStation.find({_id:id})
+    res.render('user/order',{station:FS})
+})
+
 module.exports = router;

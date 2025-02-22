@@ -1,6 +1,7 @@
 const express = require('express')
 const Users = require('../models/user.model')
 const FuelStation = require('../models/fuelstation.model');
+const Customer = require('../models/customer.model')
 const bcrypt = require('bcrypt');
 const router = express.Router();
 
@@ -50,7 +51,7 @@ router.post("/fuel_reg", async (req, res) => {
 
 router.get('/users', async (req, res) => {
     try {
-        const users = await Users.find({ role: "customer" }); // Use await
+        const users = await Customer.find(); // Use await
         res.render('admin/users', { user: users }); // Pass correct variable
     } catch (err) {
         console.error(err);
