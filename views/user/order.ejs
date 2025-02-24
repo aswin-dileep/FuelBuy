@@ -12,13 +12,12 @@
 
     <div class="container">
         <h2>Order Fuel</h2>
-        <form action="/submit-order" method="POST">
+        <form action="/user/submit-order" method="POST">
             <label for="station">Fuel Station:</label>
             <input type="text" id="station" name="station" value="<%= station.stationName %>" readonly>
 
-    
             <label for="quantity">Quantity (Liters):</label>
-            <input type="number" id="quantity" name="quantity" min="1" required>
+            <input type="number" id="quantity" name="quantity" min="20" value="20" required>
 
             <!-- Delivery Address Selection -->
             <label>Delivery Address:</label>
@@ -37,8 +36,15 @@
             <button type="button" id="get-location" onclick="getCurrentLocation()">Get My Location</button>
             <input type="text" id="location-address" name="locationAddress" placeholder="Location will appear here" readonly style="display: none;">
 
+            <!-- Hidden inputs for Latitude and Longitude -->
+            <input type="hidden" id="latitude" name="latitude">
+            <input type="hidden" id="longitude" name="longitude">
+
             <label for="date">Preferred Delivery Date:</label>
             <input type="date" id="date" name="date" required>
+
+            <label for="time">Preferred Delivery Time:</label>
+            <input type="time" id="time" name="time" required>
 
             <button type="submit" class="btn-submit">Place Order</button>
         </form>
@@ -71,6 +77,9 @@
                     function(position) {
                         const lat = position.coords.latitude;
                         const lng = position.coords.longitude;
+                        document.getElementById('latitude').value = lat;
+                        document.getElementById('longitude').value = lng;
+
                         const geocoder = new google.maps.Geocoder();
                         const latlng = new google.maps.LatLng(lat, lng);
 

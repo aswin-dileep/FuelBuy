@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Orders</title>
+    <link rel="stylesheet" href="/css/user/my-orders.css">
+</head>
+<body>
+
+    <!-- Header -->
+    <%- include('header.ejs') %>
+
+    <div class="container">
+        <h2>My Orders</h2>
+        
+        <% if (orders.length > 0) { %>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Order ID</th>
+                        <th>Fuel Station</th>
+                        <th>Quantity (Liters)</th>
+                        <th>Delivery Address</th>
+                        <th>Preferred Date</th>
+                        <th>Preferred Time</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% orders.forEach(order => { %>
+                        <tr>
+                            <td><%= order._id %></td>
+                            <td><%= order.station %></td>
+                            <td><%= order.quantity %></td>
+                            <td>
+                                <% if (order.addressType === "manual") { %>
+                                    <%= order.manualAddress %>
+                                <% } else { %>
+                                    <%= order.locationAddress %> (Lat: <%= order.latitude %>, Lng: <%= order.longitude %>)
+                                <% } %>
+                            </td>
+                            <td><%= order.date %></td>
+                            <td><%= order.time %></td>
+                            <td><%= order.status || "Pending" %></td>
+                        </tr>
+                    <% }) %>
+                </tbody>
+            </table>
+        <% } else { %>
+            <p>No orders found.</p>
+        <% } %>
+
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2025 FuelBuddy. All rights reserved.</p>
+    </footer>
+
+</body>
+</html>
