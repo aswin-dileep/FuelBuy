@@ -6,47 +6,54 @@
     <title>Order Fuel</title>
     <link rel="stylesheet" href="/css/user/order.css">
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAJ4yvtBIxATyVzCqqlQ13tLs7wrTndENg&libraries=places"></script>
+    <script src="https://js.stripe.com/v3/"></script> <!-- Stripe Library -->
 </head>
 <body>
     <%- include('header.ejs') %>
 
     <div class="container">
         <h2>Order Fuel</h2>
-        <form action="/user/submit-order" method="POST">
+        <form id="order-form">
             <label for="station">Fuel Station:</label>
             <input type="text" id="station" name="station" value="<%= station.stationName %>" readonly>
-
+    
             <label for="quantity">Quantity (Liters):</label>
-            <input type="number" id="quantity" name="quantity" min="20" value="20" required>
-
+            <input type="number" id="quantity" name="quantity" min="20" value="20" required oninput="calculateTotalPrice()">
+    
+            <label for="fuelPrice">Fuel Price (Per Liter):</label>
+            <input type="text" id="fuelPrice" name="fuelPrice" value="<%= station.fuelPrice %>" readonly>
+    
+            <label for="totalPrice">Total Price:</label>
+            <input type="text" id="totalPrice" name="totalPrice" value="<%= station.fuelPrice * 20 %>" readonly>
+    
             <!-- Delivery Address Selection -->
             <label>Delivery Address:</label>
             <div class="address-options">
                 <input type="radio" id="manual" name="addressType" value="manual" checked onclick="toggleAddressMethod()">
                 <label for="manual">Enter Manually</label>
-
+    
                 <input type="radio" id="location" name="addressType" value="location" onclick="toggleAddressMethod()">
                 <label for="location">Use My Location</label>
             </div>
-
+    
             <!-- Manual Address Input -->
             <textarea id="manual-address" name="manualAddress" placeholder="Enter your address"></textarea>
-
+    
             <!-- Location-based Address -->
             <button type="button" id="get-location" onclick="getCurrentLocation()">Get My Location</button>
             <input type="text" id="location-address" name="locationAddress" placeholder="Location will appear here" readonly style="display: none;">
-
+    
             <!-- Hidden inputs for Latitude and Longitude -->
             <input type="hidden" id="latitude" name="latitude">
             <input type="hidden" id="longitude" name="longitude">
-
+    
             <label for="date">Preferred Delivery Date:</label>
             <input type="date" id="date" name="date" required>
-
+    
             <label for="time">Preferred Delivery Time:</label>
             <input type="time" id="time" name="time" required>
-
-            <button type="submit" class="btn-submit">Place Order</button>
+    
+            <button type="button" class="btn-submit" id="checkout-button">Proceed to Payment</button>
         </form>
     </div>
 
@@ -55,6 +62,15 @@
     </footer>
 
     <script>
+        const stripe = Stripe("pk_test_51MJGIsSC2OvST834bGXsL19nYD1LiSM7i8YWlLAQrC4luqz3cMR0UQFjs9BgKiZqZgS5m8Gzv3CgtzYSGZ1BYCSJ006113D2Ul"); // Replace with your Stripe Publishable Key
+
+        function calculateTotalPrice() {
+            const quantity = document.getElementById('quantity').value;
+            const fuelPrice = document.getElementById('fuelPrice').value;
+            const totalPrice = quantity * fuelPrice;
+            document.getElementById('totalPrice').value = totalPrice.toFixed(2);
+        }
+
         function toggleAddressMethod() {
             const manualAddress = document.getElementById('manual-address');
             const locationAddress = document.getElementById('location-address');
@@ -103,6 +119,42 @@
                 alert("Geolocation is not supported by this browser.");
             }
         }
+
+    document.getElementById("checkout-button").addEventListener("click", async function () {
+        const quantity = document.getElementById("quantity").value;
+        const totalPrice = document.getElementById("totalPrice").value;
+        const station = document.getElementById("station").value;
+        const addressType = document.querySelector('input[name="addressType"]:checked').value;
+        const manualAddress = document.getElementById("manual-address").value;
+        const locationAddress = document.getElementById("location-address").value;
+        const latitude = document.getElementById("latitude").value;
+        const longitude = document.getElementById("longitude").value;
+        const date = document.getElementById("date").value;
+        const time = document.getElementById("time").value;
+        const customerId = "<%= session._id %>"; // Assuming user ID is available in session
+
+        const response = await fetch("/user/create-checkout-session", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                station,
+                quantity,
+                totalPrice,
+                addressType,
+                manualAddress,
+                locationAddress,
+                latitude,
+                longitude,
+                date,
+                time,
+                customerId
+            })
+        });
+
+        const session = await response.json();
+        stripe.redirectToCheckout({ sessionId: session.id });
+    });
+
     </script>
 
 </body>

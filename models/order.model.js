@@ -21,6 +21,9 @@ const orderSchema = new mongoose.Schema({
             return this.addressType === 'manual';
         }
     },
+    totalPrice:{
+        type:Number
+    },
     locationAddress: {
         type: String
     },

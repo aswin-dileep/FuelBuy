@@ -19,6 +19,7 @@
                     <img src="/img/fuelstation.png" alt="Fuel Station" class="station-image">
                     <h3><%= station.stationName %></h3>
                     <p><strong>Location:</strong> <%= station.location %></p>
+                    <p><strong>Fuel Price:</strong> <%= station.fuelPrice %></p>
                     <a href="/user/order/<%= station._id %>" class="btn-order">Order</a>
                 </div>
             <% }) %>

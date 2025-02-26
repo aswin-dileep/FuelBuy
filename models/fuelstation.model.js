@@ -11,6 +11,7 @@ const fuelStationSchema = new mongoose.Schema({
         lng: Number
     },
     fuel:Number,
+    fuelPrice:Number,
 },{ timestamps: true });
 
 const FuelStation = mongoose.model("FuelStation", fuelStationSchema);

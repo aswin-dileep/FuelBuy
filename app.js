@@ -12,6 +12,8 @@ const bodyParser = require('body-parser');
 const session = require('express-session');
 const MongoStore = require('connect-mongo');
 require('dotenv').config();
+const stripe = require("stripe")(process.env.SECRET_STRIPE_KEY);
+
 
 const app = express() 
 
