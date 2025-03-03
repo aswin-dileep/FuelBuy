@@ -11,8 +11,9 @@
                 navigator.geolocation.getCurrentPosition(function(position) {
                     let userLat = position.coords.latitude;
                     let userLng = position.coords.longitude;
-
+                    
                     // Redirect to fuelstations route with lat & lng as query params
+
                     window.location.href = `/user/fuelstations?lat=${userLat}&lng=${userLng}`;
                 }, function(error) {
                     console.error("Error getting location: ", error);

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fuel Stock Update</title>
+    <title>Fuel Stock & Price Update</title>
     <link rel="stylesheet" href="/css/fuelstation/stock_update.css">
 </head>
 <body>
@@ -13,23 +13,43 @@
 
     <!-- Main Content -->
     <div class="container">
-        <h2 class="title">Fuel Stock Update</h2>
+        <h2 class="title">Fuel Stock & Price Update</h2>
 
-        <!-- Fuel Stock Card -->
-        <div class="stock-card">
-            <div class="stock-info">
+        <!-- Fuel Stock & Price Section -->
+        <div class="update-grid">
+            <!-- Fuel Stock Card -->
+            <div class="stock-card">
                 <h3>Fuel Stock</h3>
                 <div class="progress-circle">
-                    <span class="stock-value" id="stockValue">5000 L</span>
+                    <span class="stock-value" id="stockValue"><%= fuelstation.fuel %></span> Liters
+                </div>
+                
+                <div class="update-section">
+                    <label for="newStock">Update Fuel Stock:</label>
+                    <input type="number" id="newStock" placeholder="Enter new stock" name="fuel" value="<%= fuelstation.fuel %>" min="1">
                 </div>
             </div>
 
-            <!-- Inline Input for Updating Stock -->
-            <div class="update-section">
-                <input type="number" id="newStock" placeholder="Enter new stock" min="1">
-                <button class="update-btn" onclick="updateStock()">Update Stock</button>
+            <!-- Fuel Price Card -->
+            <div class="stock-card">
+                <h3>Fuel Price</h3>
+                <div class="progress-circle">
+                    <span class="stock-value" id="priceValue">&#8377;<%= fuelstation.fuelPrice %></span> /L
+                </div>
+                
+                <div class="update-section">
+                    <label for="newPrice">Update Fuel Price:</label>
+                    <input type="number" id="newPrice" placeholder="Enter new price" name="fuelPrice" value="<%= fuelstation.fuelPrice %>" step="0.01">
+                </div>
             </div>
         </div>
+
+        <!-- Update Button -->
+        <form action="/fuelstation/update_stock" method="POST" class="update-form">
+            <input type="hidden" id="fuelInput" name="fuel">
+            <input type="hidden" id="fuelPriceInput" name="fuelPrice">
+            <input type="submit" value="Update Stock & Price" class="update-btn">
+        </form>
     </div>
 
     <!-- Footer -->
@@ -38,35 +58,10 @@
     </footer>
 
     <script>
-        function updateStock() {
-            const newStock = document.getElementById("newStock").value;
-
-            if (!newStock || newStock <= 0) {
-                alert("Please enter a valid stock value.");
-                return;
-            }
-
-            // Update the stock value on the page
-            document.getElementById("stockValue").innerText = `${newStock} L`;
-
-            // Send updated stock to the backend
-            fetch("/update-stock", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({ stock: newStock })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    alert("Stock updated successfully!");
-                } else {
-                    alert("Error updating stock. Try again.");
-                }
-            })
-            .catch(error => console.error("Error:", error));
-        }
+        document.querySelector(".update-btn").addEventListener("click", function () {
+            document.getElementById("fuelInput").value = document.getElementById("newStock").value;
+            document.getElementById("fuelPriceInput").value = document.getElementById("newPrice").value;
+        });
     </script>
 
 </body>

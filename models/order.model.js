@@ -21,6 +21,10 @@ const orderSchema = new mongoose.Schema({
             return this.addressType === 'manual';
         }
     },
+    customer: {
+        type: String,
+        required: true
+    },
     totalPrice:{
         type:Number
     },
@@ -47,10 +51,15 @@ const orderSchema = new mongoose.Schema({
         type: String, // Storing time as 'HH:mm'
         required: true
     },
+    status:{
+        type:String,
+        default:"Pending"
+    },
     createdAt: {
         type: Date,
         default: Date.now
     }
+    
 });
 
 const Order = mongoose.model('Order', orderSchema);

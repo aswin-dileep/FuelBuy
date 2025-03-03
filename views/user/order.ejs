@@ -52,6 +52,8 @@
     
             <label for="time">Preferred Delivery Time:</label>
             <input type="time" id="time" name="time" required>
+
+            <!-- user name passing -->
     
             <button type="button" class="btn-submit" id="checkout-button">Proceed to Payment</button>
         </form>
@@ -131,8 +133,8 @@
         const longitude = document.getElementById("longitude").value;
         const date = document.getElementById("date").value;
         const time = document.getElementById("time").value;
-        const customerId = "<%= session._id %>"; // Assuming user ID is available in session
-
+        const customer = "<%= session.name %>"; // Assuming user ID is available in session
+        
         const response = await fetch("/user/create-checkout-session", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -147,7 +149,7 @@
                 longitude,
                 date,
                 time,
-                customerId
+                customer
             })
         });
 

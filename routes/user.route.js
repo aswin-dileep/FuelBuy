@@ -74,7 +74,7 @@ router.get('/order/:id',async (req,res)=>{
 // Create Checkout Session and Store Order (Pending)
 router.post("/create-checkout-session", async (req, res) => {
     try {
-        const { station, quantity, totalPrice, addressType, manualAddress, locationAddress, latitude, longitude, date, time, customerId } = req.body;
+        const { station, quantity, totalPrice, addressType, manualAddress, locationAddress, latitude, longitude, date, time, customer } = req.body;
 
         if (!station || !quantity || !date || !time || !addressType) {
             return res.status(400).send("Missing required fields");
@@ -90,7 +90,7 @@ router.post("/create-checkout-session", async (req, res) => {
 
         // Create a new order with status "Pending"
         const newOrder = new Order({
-            customerId,
+            customer,
             station,
             quantity,
             totalPrice,

@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - Users</title>
+    <link rel="stylesheet" href="/css/Admin/users.css">
+</head>
+<body>
+
+    <!-- Navbar -->
+    <%- include('header.ejs') %>
+    
+
+    <div class="container">
+        <h2>Fuelstations List</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Phone</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% drivers.forEach((driver) =>{ %>
+                    <tr>
+                        <td><%= driver.name %></td>
+                        <td><%= driver.email %></td>
+                        <td><%= driver.phone %></td>
+
+                        <td>
+                            <button class="btn-edit"> <a href="/admin/users/<%= driver._id %>" style="text-decoration: none; color: aliceblue;"> Edit </a> </button>
+                            <form action="/admin/users/<%= driver._id %>/delete" method="POST" style="display:inline;">
+                                <button class="btn-delete" type="submit">Delete</button>
+                            </form>                      
+                        </td>
+                    </tr>
+               <% }) %>
+                
+                
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2025 FuelBuddy. All rights reserved.</p>
+    </footer>
+
+</body>
+</html>

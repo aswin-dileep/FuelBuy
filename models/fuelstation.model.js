@@ -12,6 +12,7 @@ const fuelStationSchema = new mongoose.Schema({
     },
     fuel:Number,
     fuelPrice:Number,
+    
 },{ timestamps: true });
 
 const FuelStation = mongoose.model("FuelStation", fuelStationSchema);
