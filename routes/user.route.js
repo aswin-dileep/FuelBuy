@@ -53,9 +53,17 @@ router.get('/fuelstations', async (req, res) => {
 
 router.get("/my-orders", async (req, res) => {
     try {
-        const customerId = req.session.userId; // Assuming user session exists
-        const orders = await Order.find({ customerId }).sort({ createdAt: -1 }); // Fetch orders for the logged-in user
+        const customerId = req.session.userId;
+
+        if (!customerId) {
+            return res.status(401).send("Unauthorized: Please log in.");
+        }
+
+        // 🔹 Ensure the Order model has a field storing the customer ID
+        const orders = await Order.find({ customer: customerId }).populate('station').sort({ createdAt: -1 });
+
         res.render("user/my_orders", { orders });
+
     } catch (error) {
         console.error("Error fetching orders:", error);
         res.status(500).send("Internal Server Error");
@@ -67,7 +75,7 @@ router.get("/my-orders", async (req, res) => {
 router.get('/order/:id',async (req,res)=>{
     const id = req.params.id
     const FS = await FuelStation.findOne({_id:id})
-    console.log(FS)
+
     res.render('user/order',{station:FS,session:req.session})
 });
 

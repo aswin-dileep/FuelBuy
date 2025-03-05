@@ -2,7 +2,8 @@ const mongoose = require('mongoose');
 
 const orderSchema = new mongoose.Schema({
     station: {
-        type: String,
+        type: mongoose.Schema.Types.ObjectId, // Reference to Customer model
+        ref: 'FuelStation',
         required: true
     },
     quantity: {
@@ -22,7 +23,8 @@ const orderSchema = new mongoose.Schema({
         }
     },
     customer: {
-        type: String,
+        type: mongoose.Schema.Types.ObjectId, // Reference to Customer model
+        ref: 'Customer',
         required: true
     },
     totalPrice:{

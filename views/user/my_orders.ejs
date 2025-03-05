@@ -31,7 +31,7 @@
                     <% orders.forEach(order => { %>
                         <tr>
                             <td><%= order._id %></td>
-                            <td><%= order.station %></td>
+                            <td><%= order.station.stationName %></td>
                             <td><%= order.quantity %></td>
                             <td>
                                 <% if (order.addressType === "manual") { %>

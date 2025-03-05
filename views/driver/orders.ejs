@@ -3,9 +3,109 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>My Orders</title>
+    <link rel="stylesheet" href="/css/driver/orders.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> <!-- jQuery for AJAX -->
 </head>
 <body>
-    <h2>Hey bro this is the orders page</h2>
+
+    <!-- Header -->
+    <%- include('header.ejs') %>
+
+    <div class="container">
+        <h2>My Orders</h2>
+        
+        <% if (orders.length > 0) { %>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Order ID</th>
+                        <th>Customer</th>
+                        <th>Quantity (Liters)</th>
+                        <th>Update Status</th>
+                        <th>Distance</th>
+                        <th>Track Location</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% orders.forEach(order => { %>
+                        <tr data-order-id="<%= order._id %>">
+                            <td><%= order._id %></td>
+                            <td><%= order.customer.name %></td>
+                            <td><%= order.quantity %></td>
+                            <td>
+                                <form action="/driver/update-order-status" method="post">
+                                    <input type="hidden" name="orderId" value="<%= order._id %>"> 
+                                    <select class="status-select" name="status">
+                                        <option value="Pending" <%= order.status === "Pending" ? "selected" : "" %>>Pending</option>
+                                        <option value="On the Way" <%= order.status === "On the Way" ? "selected" : "" %>>On the Way</option>
+                                        <option value="Delivered" <%= order.status === "Delivered" ? "selected" : "" %>>Delivered</option>
+                                    </select>
+                                    <button type="submit" class="update-status-btn">Update</button>
+                                </form>
+                            </td>
+                            <td><%= order.distance.toFixed(2) %> km</td>
+                            <td>
+                                <button 
+                                    class="track-btn" 
+                                    data-lat="<%= order.latitude %>" 
+                                    data-lng="<%= order.longitude %>">
+                                    View Location
+                                </button>
+                            </td>
+                        </tr>
+                    <% }) %>
+                </tbody>
+            </table>
+        <% } else { %>
+            <p>No orders found.</p>
+        <% } %>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2025 FuelBuddy. All rights reserved.</p>
+    </footer>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const locationButtons = document.querySelectorAll(".track-btn");
+
+            locationButtons.forEach(button => {
+                button.addEventListener("click", function() {
+                    const destinationLat = this.getAttribute("data-lat");
+                    const destinationLng = this.getAttribute("data-lng");
+
+                    if (!destinationLat || !destinationLng) {
+                        alert("Destination coordinates are missing.");
+                        return;
+                    }
+
+                    if (!navigator.geolocation) {
+                        alert("Geolocation is not supported by your browser.");
+                        return;
+                    }
+
+                    // Get current location
+                    navigator.geolocation.getCurrentPosition(
+                        (position) => {
+                            const currentLat = position.coords.latitude;
+                            const currentLng = position.coords.longitude;
+
+                            // Redirect to Google Maps with source and destination
+                            const googleMapsURL = `https://www.google.com/maps/dir/?api=1&origin=${currentLat},${currentLng}&destination=${destinationLat},${destinationLng}&travelmode=driving`;
+
+                            window.open(googleMapsURL, "_blank");
+                        },
+                        (error) => {
+                            alert("Unable to retrieve location. Please enable GPS and try again.");
+                            console.error(error);
+                        }
+                    );
+                });
+            });
+        });
+    </script>
+
 </body>
 </html>

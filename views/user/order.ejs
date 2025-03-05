@@ -133,7 +133,7 @@
         const longitude = document.getElementById("longitude").value;
         const date = document.getElementById("date").value;
         const time = document.getElementById("time").value;
-        const customer = "<%= session.name %>"; // Assuming user ID is available in session
+        const customer = "<%= session.userId %>"; // Assuming user ID is available in session
         
         const response = await fetch("/user/create-checkout-session", {
             method: "POST",
