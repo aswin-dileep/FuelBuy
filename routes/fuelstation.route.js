@@ -1,6 +1,6 @@
 const express = require('express')
 const User = require('../models/user.model');
-const driver = require('../models/driver.model');
+const Driver = require('../models/driver.model');
 const Order = require('../models/order.model');
 const Fuelstations = require('../models/fuelstation.model');
 const bcrypt = require('bcrypt');
@@ -17,38 +17,61 @@ router.get('/driver_reg',(req,res)=>{
 })
 
 router.post('/driver_reg',async(req,res)=>{
-    const userExist = await driver.findOne({ email: req.body.email });
+    try {
+        console.log("Received data:", req.body);
 
+        // Check if user already exists
+        const userExist = await User.findOne({ email: req.body.email });
         if (userExist) {
-            return res.send("<h1>User already exists</h1>");
+            return res.status(400).send("<h1>User already exists</h1>");
         }
 
         // Hash Password
         const hashedPassword = await bcrypt.hash(req.body.password, 10);
 
         // Create New User
-        const newDriver = new driver({
+        const newUser = new User({
             name: req.body.name,
             email: req.body.email,
             phone: req.body.phone,
-            fuelStationId: req.body.fuelStationId,
-            vehicleCapacity:req.body.Capacity,
+            role: 'driver',
             password: hashedPassword
         });
 
-        await newDriver.save();
+        await newUser.save();
+
+        // Ensure req.session.userId contains a valid fuel station ID
+        if (!req.session.userId) {
+            return res.status(400).send("Fuel Station ID is missing from session.");
+        }
+
+        // Create Driver entry
+        const newDriver = new Driver({
+            userId: newUser._id,
+            fuelStationId: req.session.userId,  // Make sure session contains correct ID
+            licenceNo: req.body.licenceNo,
+            aadharNo: req.body.aadharNo
+        });
+
+        await newDriver.save(); // Missing 'await' fixed
+
         res.redirect('/fuelstation');
+    } catch (error) {
+        console.error("Error registering driver:", error);
+        res.status(500).send("Internal Server Error");
+    }
 })
 
 router.get('/drivers', async(req,res)=>{
     try {
         // Ensure user is authenticated and session contains fuelStationId
         if (!req.session.userId) {
-            return res.status(401).send("Unauthorized Access");
+            res.redirect('/login')
+            
         }
 
         // Fetch drivers associated with the logged-in fuel station
-        const drivers = await driver.find({ fuelStationId: req.session.userId });
+        const drivers = await Driver.find({ fuelStationId: req.session.userId }).populate('userId');
 
         res.render("fuelstation/drivers", { drivers });
     } catch (err) {
@@ -151,6 +174,59 @@ router.get("/orders", async (req, res) => {
     } catch (err) {
         console.error("Error fetching orders:", err);
         res.status(500).send("Server Error");
+    }
+});
+
+// GET Route - Show Edit Driver Form
+router.get('/drivers/:id/edit', async (req, res) => {
+    try {
+        const driver = await Driver.findById(req.params.id).populate('userId');
+        if (!driver) {
+            return res.status(404).send('Driver not found');
+        }
+        res.render('fuelstation/edit_driver', { driver });
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Server error');
+    }
+});
+
+// POST Route - Update Driver Details
+router.post('/drivers/:id/edit', async (req, res) => {
+    try {
+        const { name, email, phone, aadharNo, licenceNo, password } = req.body;
+
+        // Find the driver
+        const driver = await Driver.findById(req.params.id).populate('userId');
+        if (!driver) {
+            return res.status(404).send('Driver not found');
+        }
+
+        // Update User Details
+        const user = await User.findById(driver.userId);
+        if (!user) {
+            return res.status(404).send('User not found');
+        }
+
+        user.name = name;
+        user.email = email;
+        user.phone = phone;
+        
+        if (password) {
+            user.password = await bcrypt.hash(password, 10); // Hash password
+        }
+
+        await user.save();
+
+        // Update Driver Details
+        driver.aadharNo = aadharNo;
+        driver.licenceNo = licenceNo;
+        await driver.save();
+
+        res.redirect('/fuelstation/drivers'); // Redirect to drivers list
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Server error');
     }
 });
 

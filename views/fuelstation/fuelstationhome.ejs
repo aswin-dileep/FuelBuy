@@ -3,19 +3,44 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin panel</title>
+    <title>Admin Dashboard</title>
     <link rel="stylesheet" href="/css/fuelstation/fuelstationhomepage.css">
 </head>
 <body>
+    <!-- Sidebar -->
+    <%- include('sidebar.ejs') %>
 
-    <!-- Navbar -->
-    <%- include('header.ejs') %>
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Dashboard Cards -->
+        <div class="dashboard-cards">
+            <div class="card">
+                <h3>Total Orders</h3>
+                <p>1,234</p>
+                <ion-icon name="cart" class="card-icon"></ion-icon>
+            </div>
+            <div class="card">
+                <h3>Available Stock</h3>
+                <p>5,678 L</p>
+                <ion-icon name="water" class="card-icon"></ion-icon>
+            </div>
+            <div class="card">
+                <h3>Available Drivers</h3>
+                <p>23</p>
+                <ion-icon name="car" class="card-icon"></ion-icon>
+            </div>
+        </div>
 
+        <!-- Recent Orders Table -->
+        <div class="recent-orders">
+            <h2>Recent Orders</h2>
+            <table>
+                <!-- Table content here -->
+            </table>
+        </div>
+    </main>
 
-    <!-- Footer -->
-    <footer>
-        <p>&copy; 2025 FuelBuddy. All rights reserved.</p>
-    </footer>
-
+    <!-- Icons -->
+    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
 </body>
 </html>

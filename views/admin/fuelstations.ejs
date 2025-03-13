@@ -40,9 +40,9 @@
             <tbody>
                 <% stations.forEach((station) =>{ %>
                     <tr>
-                        <td><%= station.stationName %></td>
-                        <td><%= station.email %></td>
-                        <td><%= station.phone %></td>
+                        <td><%= station.userId.name %></td>
+                        <td><%= station.userId.email %></td>
+                        <td><%= station.userId.phone %></td>
                         <td><%= station.location %></td>
                         <td>
                             <button class="btn-edit"> <a href="/admin/users/<%= station._id %>" style="text-decoration: none; color: aliceblue;"> Edit </a> </button>

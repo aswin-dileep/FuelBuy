@@ -1,23 +1,16 @@
-const { name } = require('ejs')
-const mongoose = require('mongoose')
 
-const userSchema = new mongoose.Schema({
+const mongoose = require('mongoose');
+
+const UserSchema = new mongoose.Schema({
     name: { type: String, required: true },
-
-    email: { type: String, unique: true, required: true },
-
-    phone:{ type: Number},
-
+    email: { type: String, required: true },
+    phone: { type: Number, required: true },
     password: { type: String, required: true },
+    role: { type: String, required: true },
+    createdAt: { type: Date, default: Date.now }
+});
 
-    fuelStationId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: function () { return this.role === 'driver'; } }, // Only for Drivers
-    
-    location: { type: String }, // Only for Fuel Stations & Drivers
-    
-    vehicleCapacity: { type: String }, // Only for Drivers
-    
-}, { timestamps: true });
+// Fix the model name to match FuelStation reference
+const User = mongoose.model('User', UserSchema);  
 
-const userModel = new mongoose.model('user',userSchema);
-
-module.exports = userModel;
+module.exports = User;

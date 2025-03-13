@@ -7,5 +7,5 @@ const customerSchema = new mongoose.Schema({
     password: { type: String, required: true },
 }, { timestamps: true });
 
-const customerModel = mongoose.model('Customer', customerSchema);
-module.exports = customerModel;
+const customer = mongoose.model('Customer', customerSchema);
+module.exports = customer;

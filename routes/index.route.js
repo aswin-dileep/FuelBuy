@@ -35,23 +35,9 @@ router.post('/login', async (req, res) => {
         // Check in User model (Admin, Driver, Customer)
         let user = await User.findOne({ email });
 
-        // If not found, check in FuelStation model
-        if (!user) {
-            user = await FuelStation.findOne({ email });
-        }
-        // if not found, check in driver model
-        if(!user){
-            user = await Driver.findOne({email})
-        }
-
-        // if not found, check in customer model
-        if(!user){
-            user = await Customer.findOne({email})
-        }
-
         // If user still not found, return error
         if (!user) {
-            return res.send("Username not found");
+            res.render('/error',{ message: "User not found" })
         }
 
         // Compare hashed password
@@ -64,26 +50,17 @@ router.post('/login', async (req, res) => {
         // Store user details in session
         req.session.userId = user._id;
         req.session.email = user.email;
-        
+        req.session.role = user.role;
         console.log(req.session);
         // Determine user role & redirect accordingly
-        if (user instanceof User) {
-            req.session.role = "Admin";
-            req.session.name = user.name;
-                return res.redirect('/admin');
-            
-        } else if (user instanceof FuelStation) {
-            req.session.role = "FuelStation";
-            req.session.name = user.stationName;
-            return res.redirect("/fuelstation");
-        }else if (user instanceof Driver){
-            req.session.role = "Driver";
-            req.session.name = user.name;
-            return res.redirect("/driver");
-        }else {
-            req.session.role = "Customer";
-            req.session.name = user.name;
-            return res.redirect("/user")
+        if(user.role=='admin'){
+            res.redirect('/admin')
+        }else if(user.role=='user'){
+            res.redirect('/user')
+        }else if(user.role=='driver'){
+            res.redirect('/driver')
+        }else{
+            res.redirect('/fuelstation')
         }
        
 
@@ -103,26 +80,27 @@ router.get('/sign-up', (req, res) => {
 router.post('/sign-up', async (req, res) => {
     try {
         const { name, email, phone, password } = req.body;
-
+        const role = 'user';
         // Check if the customer already exists
-        const customerExist = await Customer.findOne({ email });
+        const userExist = await User.findOne({ email });
 
-        if (customerExist) {
-            return res.status(400).send("<h1>Customer already exists</h1>");
+        if (userExist) {
+            return res.status(400).send("<h1>User already exists</h1>");
         }
 
         // Hash the password before saving
         const hashedPassword = await bcrypt.hash(password, 10);
 
         // Create a new customer
-        const newCustomer = new Customer({
+        const newUser = new User({
             name,
             email,
             phone,
+            role,
             password: hashedPassword
         });
 
-        await newCustomer.save();
+        await newUser.save();
 
         res.redirect('/login'); // Redirect to login page after successful sign-up
 

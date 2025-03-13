@@ -1,17 +1,11 @@
 const mongoose = require('mongoose');
 
-const driverSchema = new mongoose.Schema({
-    name: { type: String, required: true },
-    email: { type: String, unique: true, required: true },
-    phone: { type: Number },
-    password: { type: String, required: true },
-    fuelStationId: { 
-        type: mongoose.Schema.Types.ObjectId, 
-        ref: 'FuelStation', 
-        required: function () { return this.fuelStationId !== null; } // Optional, only required if not null
-    },
-    vehicleCapacity: { type: String }, 
-}, { timestamps: true });
+const DriverSchema = new mongoose.Schema({
+    userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+    fuelStationId: { type: mongoose.Schema.Types.ObjectId, ref: 'FuelStation', required: true },
+    licenceNo: { type: String, required: true, trim: true },
+    aadharNo: { type: String, required: true, trim: true },
+}, { timestamps: true }); // Automatically manages createdAt and updatedAt
 
-const driverModel = mongoose.model('Driver', driverSchema);
-module.exports = driverModel;
+const driver = mongoose.model('Driver', DriverSchema);
+module.exports = driver;
