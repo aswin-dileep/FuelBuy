@@ -230,4 +230,9 @@ router.post('/drivers/:id/edit', async (req, res) => {
     }
 });
 
+//GET Route - for fuels 
+router.get('/fuels',(req,res)=>{
+    res.render('fuelstation/fuels')
+})
+
 module.exports = router;
