@@ -7,6 +7,6 @@ const FuelSchema = new mongoose.Schema({
     fuelStationId: { type: mongoose.Schema.Types.ObjectId, ref: 'Fuelstation', required: true }
 });
 
-const Fuel = new mongoose.Model('Fuel',FuelSchema);
+const Fuel = new mongoose.model('Fuel',FuelSchema);
 
 module.exports=Fuel;

@@ -18,7 +18,7 @@
         <div class="dashboard-card">
             <div class="header-section">
                 <h2 class="card-title"><ion-icon name="water"></ion-icon> Fuels List</h2>
-                <a href="/fuelstation/driver_reg" class="btn-register">
+                <a href="/fuelstation/add_fuel" class="btn-register">
                     <ion-icon name="add"></ion-icon>Add Fuels
                 </a>
             </div>
@@ -34,7 +34,21 @@
                     </tr>
                 </thead>
                 <tbody>
-                    
+                    <% fuels.forEach((fuel)=>{ %>
+                        <tr>
+                        <td><%= fuel.type %></td>
+                        <td><%= fuel.quantity %></td>
+                        <td><%= fuel.price %>/-</td>
+                        
+                        <td class="action-buttons">
+                            <a href="/fuelstation/drivers/<%= fuel._id %>/edit" class="btn-edit">Update Stock & Price</a>
+                            <form action="/fuelstation/drivers/<%= fuel._id %>/delete" method="POST">
+                                <button class="btn-delete" type="submit">Delete</button>
+                            </form>                      
+                        </td>
+
+                        </tr>
+                  <%  }) %>
                 </tbody>
             </table>
         </div>

@@ -3,7 +3,9 @@ const User = require('../models/user.model');
 const Driver = require('../models/driver.model');
 const Order = require('../models/order.model');
 const Fuelstations = require('../models/fuelstation.model');
+const Fuel = require('../models/fuel.model');
 const bcrypt = require('bcrypt');
+const FuelStation = require('../models/fuelstation.model');
 const router = express.Router();
 
 
@@ -231,8 +233,33 @@ router.post('/drivers/:id/edit', async (req, res) => {
 });
 
 //GET Route - for fuels 
-router.get('/fuels',(req,res)=>{
-    res.render('fuelstation/fuels')
+router.get('/fuels',async (req,res)=>{
+    const fuelstation = await FuelStation.findOne({userId:req.session.userId})
+    const fuels = await Fuel.find({fuelStationId:fuelstation._id})
+    console.log(fuels)
+    res.render('fuelstation/fuels',{fuels})
 })
+
+// Render Add Fuel Page
+router.get("/add_fuel",async (req, res) => {
+    const fuelstation = await FuelStation.findOne({userId:req.session.userId})
+    res.render("fuelstation/add_fuel", { fuelstation });
+});
+
+// Handle Fuel Submission
+router.post("/add_fuel", async (req, res) => {
+    try {
+        const { type, quantity, price, fuelStationId } = req.body;
+
+        // Create and Save Fuel
+        const newFuel = new Fuel({ type, quantity, price, fuelStationId });
+        await newFuel.save();
+
+        res.redirect("/fuelstation");
+    } catch (error) {
+        console.error(error);
+        res.redirect("/fuelstation/add_fuel");
+    }
+});
 
 module.exports = router;

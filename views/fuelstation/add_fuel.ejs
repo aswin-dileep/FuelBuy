@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Fuel</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/css/fuelstation/add_fuel.css">
+    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+</head>
+<body>
+
+    <!-- Sidebar -->
+    <%- include('sidebar.ejs') %>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="dashboard-card">
+            <h2 class="card-title"><ion-icon name="flame"></ion-icon> Add Fuel</h2>
+
+            <form action="/fuelstation/add_fuel" method="POST" class="dashboard-form">
+                <div class="form-group">
+                    <label for="type">Fuel Type</label>
+                    <select id="type" name="type" required>
+                        <option value="Petrol">Petrol</option>
+                        <option value="Diesel">Diesel</option>
+                        <option value="CNG">CNG</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="quantity">Quantity (Liters)</label>
+                    <input type="number" id="quantity" name="quantity" min="1" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="price">Price per Liter</label>
+                    <input type="number" id="price" name="price" min="1" required>
+                </div>
+
+                <input type="hidden" name="fuelStationId" value="<%= fuelstation._id %>">
+                
+                <button type="submit" class="btn-submit">
+                    <ion-icon name="save"></ion-icon> Add Fuel
+                </button>
+            </form>
+        </div>
+    </main>
+
+</body>
+</html>
