@@ -8,61 +8,54 @@
 </head>
 <body>
 
-    <!-- Header -->
-    <%- include('header.ejs') %>
+    <!-- Sidebar -->
+    <%- include('sidebar.ejs') %>
 
     <!-- Main Content -->
-    <div class="container">
-        <h2 class="title">Fuel Stock & Price Update</h2>
+    <div class="main-content">
+        <div class="container">
+            <h2 class="title">Fuel Stock & Price Update</h2>
 
-        <!-- Fuel Stock & Price Section -->
-        <div class="update-grid">
-            <!-- Fuel Stock Card -->
-            <div class="stock-card">
-                <h3>Fuel Stock</h3>
-                <div class="progress-circle">
-                    <span class="stock-value" id="stockValue"><%= fuelstation.fuel %></span> Liters
-                </div>
+            <!-- Form Wrap -->
+            <form action="/fuelstation/update_stock" method="POST" class="update-form">
+                <input type="hidden" name="fuelId" value="<%= fuel._id %>">
                 
-                <div class="update-section">
-                    <label for="newStock">Update Fuel Stock:</label>
-                    <input type="number" id="newStock" placeholder="Enter new stock" name="fuel" value="<%= fuelstation.fuel %>" min="1">
-                </div>
-            </div>
+                <!-- Fuel Stock & Price Section -->
+                <div class="update-grid">
+                    <!-- Fuel Stock Card -->
+                    <div class="stock-card">
+                        <h3>Fuel Stock</h3>
+                        <div class="progress-circle">
+                            <span class="stock-value" id="stockValue"><%= fuel.quantity %></span> Liters
+                        </div>
 
-            <!-- Fuel Price Card -->
-            <div class="stock-card">
-                <h3>Fuel Price</h3>
-                <div class="progress-circle">
-                    <span class="stock-value" id="priceValue">&#8377;<%= fuelstation.fuelPrice %></span> /L
+                        <div class="update-section">
+                            <label for="newStock">Update Fuel Stock:</label>
+                            <input type="number" id="newStock" placeholder="Enter new stock" 
+                                   name="quantity" value="<%= fuel.quantity %>" min="1">
+                        </div>
+                    </div>
+
+                    <!-- Fuel Price Card -->
+                    <div class="stock-card">
+                        <h3>Fuel Price</h3>
+                        <div class="progress-circle">
+                            <span class="stock-value" id="priceValue">&#8377;<%= fuel.price %></span> /L
+                        </div>
+
+                        <div class="update-section">
+                            <label for="newPrice">Update Fuel Price:</label>
+                            <input type="number" id="newPrice" placeholder="Enter new price" 
+                                   name="price" value="<%= fuel.price %>" step="0.01">
+                        </div>
+                    </div>
                 </div>
-                
-                <div class="update-section">
-                    <label for="newPrice">Update Fuel Price:</label>
-                    <input type="number" id="newPrice" placeholder="Enter new price" name="fuelPrice" value="<%= fuelstation.fuelPrice %>" step="0.01">
-                </div>
-            </div>
+
+                <!-- Update Button -->
+                <input type="submit" value="Update Stock & Price" class="update-btn">
+            </form>
         </div>
-
-        <!-- Update Button -->
-        <form action="/fuelstation/update_stock" method="POST" class="update-form">
-            <input type="hidden" id="fuelInput" name="fuel">
-            <input type="hidden" id="fuelPriceInput" name="fuelPrice">
-            <input type="submit" value="Update Stock & Price" class="update-btn">
-        </form>
     </div>
-
-    <!-- Footer -->
-    <footer>
-        <p>&copy; 2025 FuelBuddy. All rights reserved.</p>
-    </footer>
-
-    <script>
-        document.querySelector(".update-btn").addEventListener("click", function () {
-            document.getElementById("fuelInput").value = document.getElementById("newStock").value;
-            document.getElementById("fuelPriceInput").value = document.getElementById("newPrice").value;
-        });
-    </script>
 
 </body>
 </html>

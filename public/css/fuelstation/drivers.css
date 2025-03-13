@@ -1,7 +1,6 @@
-/* General Styling */
 :root {
-    --primary-color: #4CAF50; /* Green */
-    --accent-color: #1e1e1e; /* Dark Background */
+    --primary-color: #4CAF50;
+    --accent-color: #1e1e1e;
     --text-color: #ffffff;
     --border-color: #555;
 }
@@ -35,6 +34,7 @@ body {
     font-weight: bold;
 }
 
+/* Navigation Links */
 .nav-links {
     list-style: none;
     padding: 0;
@@ -62,6 +62,7 @@ body {
     color: white;
 }
 
+/* Logout Section */
 .logout-section {
     text-align: center;
 }
@@ -82,6 +83,7 @@ body {
     padding: 2rem;
 }
 
+/* Dashboard Card */
 .dashboard-card {
     background: var(--accent-color);
     padding: 2rem;
@@ -90,7 +92,9 @@ body {
     max-width: 1000px;
     margin: 2rem auto;
     text-align: center;
+    overflow-x: auto; /* Fixes table overflow issue */
 }
+
 
 /* Header Section */
 .header-section {
@@ -98,14 +102,6 @@ body {
     justify-content: space-between;
     align-items: center;
     margin-bottom: 1.5rem;
-}
-
-.card-title {
-    font-size: 1.8rem;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    color: var(--primary-color);
 }
 
 /* Register Button */
@@ -130,18 +126,16 @@ body {
 /* Table Styling */
 .dashboard-table {
     width: 100%;
+    table-layout: fixed; /* Ensures even column distribution */
     border-collapse: collapse;
-    margin-top: 1.5rem;
-    background: #333;
-    border-radius: 10px;
-    overflow: hidden;
 }
 
-.dashboard-table th,
+.dashboard-table th, 
 .dashboard-table td {
-    padding: 1rem;
-    border-bottom: 1px solid var(--border-color);
-    text-align: center;
+    padding: 8px;
+    text-align: left;
+    font-size: 14px; /* Reduce font size slightly */
+    word-wrap: break-word; /* Prevents text from overflowing */
 }
 
 .dashboard-table thead {
@@ -160,16 +154,19 @@ body {
 /* Action Buttons */
 .action-buttons {
     display: flex;
-    gap: 10px;
-    justify-content: center;
+    gap: 5px;
+    flex-wrap: wrap; /* Ensures buttons do not overflow */
 }
+
+
 
 .btn-edit {
     background: #2196F3;
     color: white;
-    padding: 0.5rem 1rem;
+    padding: 5px 10px;
     border-radius: 5px;
     text-decoration: none;
+    font-size: 12px; 
     font-weight: bold;
     transition: all 0.3s ease;
 }
@@ -181,8 +178,9 @@ body {
 .btn-delete {
     background: #d9534f;
     color: white;
-    padding: 0.5rem 1rem;
+    padding: 5px 10px;
     border: none;
+    font-size: 12px;
     border-radius: 5px;
     font-weight: bold;
     cursor: pointer;
@@ -205,6 +203,8 @@ body {
     }
 
     .dashboard-card {
+        width: 100%;
+        max-width: 100%;
         padding: 1.5rem;
     }
 

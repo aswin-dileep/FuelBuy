@@ -16,13 +16,18 @@
     <!-- Main Content -->
     <main class="main-content">
         <div class="dashboard-card">
+            
+            <!-- Header Section -->
             <div class="header-section">
-                <h2 class="card-title"><ion-icon name="people"></ion-icon> Drivers List</h2>
+                <h2 class="card-title">
+                    <ion-icon name="people"></ion-icon> Drivers List
+                </h2>
                 <a href="/fuelstation/driver_reg" class="btn-register">
                     <ion-icon name="person-add"></ion-icon> Register Driver
                 </a>
             </div>
 
+            <!-- Drivers Table -->
             <table class="dashboard-table">
                 <thead>
                     <tr>
@@ -35,14 +40,13 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <% drivers.forEach((driver) =>{ %>
+                    <% drivers.forEach((driver) => { %>
                         <tr>
                             <td><%= driver.userId.name %></td>
                             <td><%= driver.userId.email %></td>
                             <td><%= driver.licenceNo %></td>
                             <td><%= driver.aadharNo %></td>
                             <td><%= driver.userId.phone %></td>
-
                             <td class="action-buttons">
                                 <a href="/fuelstation/drivers/<%= driver._id %>/edit" class="btn-edit">Edit</a>
                                 <form action="/fuelstation/drivers/<%= driver._id %>/delete" method="POST">
@@ -53,6 +57,7 @@
                     <% }) %>
                 </tbody>
             </table>
+
         </div>
     </main>
 

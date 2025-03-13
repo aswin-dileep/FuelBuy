@@ -83,17 +83,12 @@ router.get('/drivers', async(req,res)=>{
 })
 
 
-router.get("/stock",async(req,res)=>{
-    
-        const fuelstationId = req.session.userId;
+router.get("/:id/stock",async(req,res)=>{
         
         try {
-            const fs = await Fuelstations.findById(fuelstationId);
-            if (!fs) {
-                return res.status(404).send("Fuel station not found");
-            }
+            const fuel = await Fuel.findOne({_id:req.params.id});
             
-            res.render('fuelstation/stock_update', { fuelstation: fs });
+            res.render('fuelstation/stock_update', { fuel });
         } catch (error) {
             console.error(error);
             res.status(500).send("Server error");
@@ -104,22 +99,38 @@ router.get("/stock",async(req,res)=>{
 // Route to update fuel stock and price
 router.post("/update_stock", async (req, res) => {
     try {
-        const { fuel, fuelPrice } = req.body;
+        const { fuelId, quantity, price } = req.body;
 
         // Validate input
-        if (!fuel || !fuelPrice || fuel <= 0 || fuelPrice <= 0) {
+        if (!fuelId || !quantity || !price || quantity <= 0 || price <= 0) {
             return res.status(400).send("Invalid stock or price values.");
         }
 
-        // Update fuel station data
-        await Fuelstations.findByIdAndUpdate(req.session.userId, {
-            fuel,
-            fuelPrice
-        });
+        // Update fuel data
+        await Fuel.findByIdAndUpdate(fuelId, { quantity, price });
 
-        res.redirect("/fuelstation/stock"); // Redirect back to the update page
+        res.redirect("/fuelstation/fuels"); // Redirect to the fuels listing page
     } catch (err) {
-        console.error("Error updating fuel station:", err);
+        console.error("Error updating fuel stock:", err);
+        res.status(500).send("Internal Server Error");
+    }
+});
+
+router.post("/:id/delete", async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        // Find and delete the fuel entry
+        const fuel = await Fuel.findById(id);
+        if (!fuel) {
+            return res.status(404).send("Fuel not found");
+        }
+
+        await Fuel.findByIdAndDelete(id);
+
+        res.redirect("/fuelstation/fuels"); // Redirect back to the fuels listing page
+    } catch (err) {
+        console.error("Error deleting fuel:", err);
         res.status(500).send("Internal Server Error");
     }
 });
@@ -255,7 +266,7 @@ router.post("/add_fuel", async (req, res) => {
         const newFuel = new Fuel({ type, quantity, price, fuelStationId });
         await newFuel.save();
 
-        res.redirect("/fuelstation");
+        res.redirect("/fuelstation/fuels");
     } catch (error) {
         console.error(error);
         res.redirect("/fuelstation/add_fuel");
