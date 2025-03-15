@@ -181,3 +181,45 @@ footer {
     position: fixed;
     bottom: 0;
 }
+
+.fuel-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+.fuel-table th, .fuel-table td {
+    border: 1px solid #ddd;
+    padding: 10px;
+    color: black;
+    text-align: center;
+}
+
+.fuel-table th {
+    background-color: #b3c8af;
+}
+
+.btn-view {
+    display: inline-block;
+    background-color: #007bff;
+    color: white;
+    padding: 10px 15px;
+    text-decoration: none;
+    border-radius: 5px;
+}
+
+.btn-view:hover {
+    background-color: #0056b3;
+}
+
+.btn-order {
+    background-color: #28a745;
+    color: white;
+    padding: 8px 12px;
+    text-decoration: none;
+    border-radius: 5px;
+}
+
+.btn-order:hover {
+    background-color: #218838;
+}

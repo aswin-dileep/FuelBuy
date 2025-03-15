@@ -1,6 +1,8 @@
 const express = require('express')
 const FuelStation = require('../models/fuelstation.model');
 const Order = require('../models/order.model');
+const Fuel = require('../models/fuel.model');
+const Payment = require('../models/payment.model');
 const router = express.Router();
 require('dotenv').config();
 const stripe = require("stripe")(process.env.SECRET_STRIPE_KEY);
@@ -8,9 +10,9 @@ const stripe = require("stripe")(process.env.SECRET_STRIPE_KEY);
 router.get('/',(req,res)=>{
     res.render('user/userhome',{session:req.session});
 })
-// Haversine formula to calculate distance
+// Haversine formula to calculate distance between two coordinates
 function getDistance(lat1, lon1, lat2, lon2) {
-    const R = 6371; // Radius of Earth in km
+    const R = 6371; // Earth's radius in km
     const toRad = (degree) => degree * (Math.PI / 180);
 
     const dLat = toRad(lat2 - lat1);
@@ -27,23 +29,50 @@ function getDistance(lat1, lon1, lat2, lon2) {
 
 router.get('/fuelstations', async (req, res) => {
     try {
-        const userLat = parseFloat(req.query.lat);
-        const userLng = parseFloat(req.query.lng);
+        const userLat = req.query.lat ? parseFloat(req.query.lat) : null;
+        const userLng = req.query.lng ? parseFloat(req.query.lng) : null;
 
-        const fuelStations = await FuelStation.find({}, 'stationName location fuelPrice coordinates');
+        if (!userLat || !userLng) {
+            console.log("User location not provided");
+            return res.render('user/fuelstations', { stations: [], session: req.session });
+        }
 
-        // Calculate distance for each fuel station
-        const stationsWithDistance = fuelStations.map(station => {
-            if (userLat && userLng && station.coordinates.lat && station.coordinates.lng) {
+        const fuelStations = await FuelStation.find({}, 'location latitude longitude').populate('userId');
+
+        // Calculate distance and filter only nearby fuel stations (e.g., within 50 km)
+        let nearbyStations = fuelStations.map(station => {
+            if (station.latitude && station.longitude) {
                 station = station.toObject();
-                station.distance = getDistance(userLat, userLng, station.coordinates.lat, station.coordinates.lng).toFixed(2);
+                station.distance = getDistance(userLat, userLng, station.latitude, station.longitude).toFixed(2);
             } else {
                 station.distance = "N/A";
             }
             return station;
         });
 
-        res.render('user/fuelstations', { stations: stationsWithDistance, session: req.session });
+        // Sort by closest and filter within 50 km
+        nearbyStations = nearbyStations
+            .filter(station => station.distance !== "N/A" && station.distance <= 100)
+            .sort((a, b) => a.distance - b.distance);
+
+        res.render('user/fuelstations', { stations: nearbyStations, session: req.session });
+    } catch (err) {
+        console.error(err);
+        res.status(500).send("Server Error");
+    }
+});
+
+router.get('/fuelstation/:id/fuels', async (req, res) => {
+    try {
+        const fuelStationId = req.params.id;
+        const fuelStation = await FuelStation.findById(fuelStationId);
+        const fuels = await Fuel.find({ fuelStationId });
+
+        if (!fuelStation) {
+            return res.status(404).send("Fuel Station not found");
+        }
+
+        res.render('user/viewfuels', { station: fuelStation, fuels: fuels, session: req.session });
     } catch (err) {
         console.error(err);
         res.status(500).send("Server Error");
@@ -60,7 +89,15 @@ router.get("/my-orders", async (req, res) => {
         }
 
         // 🔹 Ensure the Order model has a field storing the customer ID
-        const orders = await Order.find({ customer: customerId }).populate('station').sort({ createdAt: -1 });
+        const orders = await Order.find({ userId: customerId })
+    .populate({
+        path: 'fuelStationId',
+        populate: {
+            path: 'userId',
+            model: 'User'
+        }
+    })
+    .sort({ createdAt: -1 });
 
         res.render("user/my_orders", { orders });
 
@@ -72,89 +109,156 @@ router.get("/my-orders", async (req, res) => {
 
 //orders
 
-router.get('/order/:id',async (req,res)=>{
-    const id = req.params.id
-    const FS = await FuelStation.findOne({_id:id})
+router.get('/order/:fuelId', async (req, res) => {
+    try {
+        const fuelId = req.params.fuelId;
+        const fuel = await Fuel.findById(fuelId)
+    .populate({
+        path: "fuelStationId",
+        populate: { path: "userId" } // Ensure userId is populated within fuelStationId
+    });
 
-    res.render('user/order',{station:FS,session:req.session})
+        if (!fuel) {
+            return res.status(404).send("Fuel not found");
+        }
+
+        res.render('user/order', { fuel, session: req.session });
+    } catch (err) {
+        console.error(err);
+        res.status(500).send("Server Error");
+    }
 });
 
 // Create Checkout Session and Store Order (Pending)
 router.post("/create-checkout-session", async (req, res) => {
     try {
-        const { station, quantity, totalPrice, addressType, manualAddress, locationAddress, latitude, longitude, date, time, customer } = req.body;
+        const { fuelId, quantity, totalPrice, addressType, manualAddress, locationAddress, latitude, longitude, date, customer } = req.body;
 
-        if (!station || !quantity || !date || !time || !addressType) {
-            return res.status(400).send("Missing required fields");
+        // Validate required fields
+        if (!fuelId || !quantity || !totalPrice || !customer) {
+            return res.status(400).json({ error: "Missing required fields" });
         }
 
-        if (addressType === "manual" && !manualAddress) {
-            return res.status(400).send("Manual address is required");
-        }
+        const fuel = await Fuel.findById(fuelId).populate("fuelStationId");
+        if (!fuel) return res.status(404).json({ error: "Fuel not found" });
 
-        if (addressType === "location" && (!locationAddress || !latitude || !longitude)) {
-            return res.status(400).send("Location address, latitude, and longitude are required");
-        }
-
-        // Create a new order with status "Pending"
-        const newOrder = new Order({
-            customer,
-            station,
+        // Create order
+        const order = new Order({
+            userId: customer,
+            fuelId,
+            fuelStationId: fuel.fuelStationId,
             quantity,
             totalPrice,
             addressType,
-            manualAddress: addressType === "manual" ? manualAddress : null,
-            locationAddress: addressType === "location" ? locationAddress : null,
-            latitude: addressType === "location" ? latitude : null,
-            longitude: addressType === "location" ? longitude : null,
-            date,
-            time,
-            status: "Pending", // Initially set as pending
+            manualAddress,
+            locationAddress,
+            latitude,
+            longitude,
+            date
         });
 
-        const savedOrder = await newOrder.save();
+        await order.save();
+
+        // Store order ID in session for later validation
+        req.session.orderId = order._id.toString();
+
+        // Update fuel stock
+        await Fuel.findByIdAndUpdate(fuelId, { $inc: { quantity: -quantity } });
 
         // Create Stripe checkout session
         const session = await stripe.checkout.sessions.create({
             payment_method_types: ["card"],
-            line_items: [
-                {
-                    price_data: {
-                        currency: "usd",
-                        product_data: { name: `Fuel from ${station}` },
-                        unit_amount: Math.round(totalPrice * 100),
-                    },
-                    quantity: 1,
+            line_items: [{
+                price_data: {
+                    currency: "inr",
+                    product_data: { name: "Fuel Order" },
+                    unit_amount: Math.round(totalPrice * 100)
                 },
-            ],
+                quantity: 1
+            }],
             mode: "payment",
-            success_url: `http://localhost:5000/user/my-orders`,
-            cancel_url: `http://localhost:5000/user/`,
-            metadata: { orderId: String(savedOrder._id) }, // Attach order ID to Stripe session
+            customer_email: req.session.email,
+            billing_address_collection: "required",
+            success_url: `${req.protocol}://${req.get("host")}/user/payment-success?session_id={CHECKOUT_SESSION_ID}`,
+            cancel_url: `${req.protocol}://${req.get("host")}/payment-failed`,
+            metadata: { orderId: order._id.toString() } // ✅ Ensure orderId is stored
         });
 
         res.json({ id: session.id });
+
     } catch (error) {
-        console.error("Error creating checkout session:", error);
-        res.status(500).send("Error processing payment");
+        console.error("Checkout session error:", error);
+        res.status(500).json({ error: "Failed to create checkout session" });
     }
 });
 
 // Handle Payment Success
 router.get("/payment-success", async (req, res) => {
     try {
-        const { orderId } = req.query;
-        if (!orderId) return res.status(400).send("Order ID is missing");
+        const { session_id } = req.query;
+        if (!session_id) return res.status(400).send("Missing session ID");
 
-        // Update order status to "Paid"
-        await Order.findByIdAndUpdate(orderId, { status: "Paid" });
+        // Retrieve Stripe session
+        const session = await stripe.checkout.sessions.retrieve(session_id);
+        if (!session.metadata || !session.metadata.orderId) {
+            return res.status(400).send("Invalid session metadata");
+        }
 
-        res.redirect("/user/my-orders"); // Redirect to user's order list
+        const orderId = session.metadata.orderId;
+
+        // Verify session order matches stored session order
+        if (!req.session.orderId || req.session.orderId !== orderId) {
+            return res.status(403).send("Unauthorized or Invalid Order");
+        }
+
+        // Retrieve payment intent to get charge details
+        const paymentIntent = await stripe.paymentIntents.retrieve(session.payment_intent);
+
+        if (paymentIntent.status !== "succeeded") {
+            return res.status(400).send("Payment not successful yet");
+        }
+
+        // Retrieve the latest charge using the latest_charge property
+        const chargeId = paymentIntent.latest_charge;
+        const charge = await stripe.charges.retrieve(chargeId);
+
+        // Get order details
+        const order = await Order.findById(orderId)
+            .populate('fuelStationId')
+            .populate('fuelId');
+
+        if (!order) return res.status(404).send("Order not found");
+
+        // Extract card details (last 4 digits)
+        const cardDetails = charge.payment_method_details?.card || {};
+        const cardLast4 = cardDetails.last4 || "XXXX"; // Default if missing
+
+        // Store payment details in the database
+        const payment = new Payment({
+            orderId,
+            userId: order.userId,
+            email: charge.billing_details?.email || "N/A", // Fetch email from charge
+            name: charge.billing_details?.name || "N/A",  // Fetch name from charge
+            cardNumber: `**** **** **** ${cardLast4}`,  // Store only last 4 digits
+            amount: order.totalPrice * 100,
+            status: charge.status,
+            paymentMethod: charge.payment_method_details?.type || "Unknown",
+            transactionId: session_id
+        });
+
+        await payment.save();
+
+        // Clear session order ID after successful payment
+        req.session.orderId = null;
+
+        res.render("user/payment-success", { order, payment });
+
     } catch (error) {
         console.error("Payment success error:", error);
-        res.status(500).send("Error updating order status");
+        res.status(500).send("Error processing payment confirmation");
     }
 });
+
 
 // Handle Payment Cancellation
 router.get("/payment-cancel", async (req, res) => {
@@ -175,22 +279,58 @@ router.get("/payment-cancel", async (req, res) => {
 // Stripe Webhook (Optional for automatic verification)
 router.post("/webhook", express.raw({ type: "application/json" }), async (req, res) => {
     const sig = req.headers["stripe-signature"];
+    let event;
 
     try {
-        const event = stripe.webhooks.constructEvent(req.body, sig, process.env.STRIPE_WEBHOOK_SECRET);
+        event = stripe.webhooks.constructEvent(req.body, sig, process.env.STRIPE_WEBHOOK_SECRET);
+    } catch (err) {
+        console.error("⚠️ Webhook signature verification failed.", err.message);
+        return res.status(400).send(`Webhook Error: ${err.message}`);
+    }
 
-        if (event.type === "checkout.session.completed") {
-            const session = event.data.object;
-            const orderId = session.metadata.orderId;
+    console.log("🔥 Webhook Event Data:", JSON.stringify(event, null, 2));
 
-            await Order.findByIdAndUpdate(orderId, { status: "Paid" });
+    if (event.type === "checkout.session.completed") {
+        const session = event.data.object;
+        console.log("✅ Stripe Session:", session);
+
+        // ✅ Get orderId from metadata
+        const orderId = session.metadata?.orderId;
+        if (!orderId) {
+            console.error("❌ Order ID missing in session metadata!");
+            return res.status(400).json({ error: "Order ID missing in metadata" });
         }
 
-        res.json({ received: true });
-    } catch (err) {
-        console.error("Webhook error:", err);
-        res.status(400).send(`Webhook Error: ${err.message}`);
+        // ✅ Find the order in database
+        const order = await Order.findById(orderId);
+        if (!order) {
+            console.error("❌ Order not found for ID:", orderId);
+            return res.status(404).json({ error: "Order not found" });
+        }
+
+        // ✅ Fetch Payment Details Properly
+        const paymentIntent = await stripe.paymentIntents.retrieve(session.payment_intent);
+        const last4 = paymentIntent.charges?.data[0]?.payment_method_details?.card?.last4 || "Unknown";
+
+        // ✅ Store payment details in MongoDB
+        const payment = new Payment({
+            orderId: order._id,
+            status: "Paid",
+            cardNumber: `XXXX-XXXX-XXXX-${last4}`,
+            token: session.id, // Stripe session ID as token
+            name: session.customer_details?.name || "Unknown",
+            email: session.customer_email || "Unknown"
+        });
+
+        await payment.save();
+
+        // ✅ Update Order status to "Paid"
+        await Order.findByIdAndUpdate(order._id, { status: "Paid" });
+
+        console.log("✅ Payment saved & Order updated!");
     }
+
+    res.json({ received: true });
 });
 
 

@@ -15,16 +15,21 @@
         <h2>Order Fuel</h2>
         <form id="order-form">
             <label for="station">Fuel Station:</label>
-            <input type="text" id="station" name="station" value="<%= station.stationName %>" readonly>
-    
+            <input type="text" id="station" name="station" value="<%= fuel.fuelStationId.userId ? fuel.fuelStationId.userId.name : 'Unknown' %>" readonly>
+            <input type="hidden" id="fuelId" name="fuelId" value="<%= fuel._id %>">
+
+            <label for="fuelType">Fuel Type:</label>
+            <input type="text" id="fuelType" name="fuelType" value="<%= fuel.type %>" readonly>
+            
+            <label for="fuelPrice">Fuel Price (Per Liter):</label>
+            <input type="text" id="fuelPrice" name="fuelPrice" value="<%= fuel.price %>" readonly>
+            
             <label for="quantity">Quantity (Liters):</label>
             <input type="number" id="quantity" name="quantity" min="20" value="20" required oninput="calculateTotalPrice()">
-    
-            <label for="fuelPrice">Fuel Price (Per Liter):</label>
-            <input type="text" id="fuelPrice" name="fuelPrice" value="<%= station.fuelPrice %>" readonly>
+
     
             <label for="totalPrice">Total Price:</label>
-            <input type="text" id="totalPrice" name="totalPrice" value="<%= station.fuelPrice * 20 %>" readonly>
+            <input type="text" id="totalPrice" name="totalPrice" value="<%= fuel.price * 20 %>" readonly>
     
             <!-- Delivery Address Selection -->
             <label>Delivery Address:</label>
@@ -122,40 +127,43 @@
             }
         }
 
-    document.getElementById("checkout-button").addEventListener("click", async function () {
-        const quantity = document.getElementById("quantity").value;
-        const totalPrice = document.getElementById("totalPrice").value;
-        const station = document.getElementById("station").value;
-        const addressType = document.querySelector('input[name="addressType"]:checked').value;
-        const manualAddress = document.getElementById("manual-address").value;
-        const locationAddress = document.getElementById("location-address").value;
-        const latitude = document.getElementById("latitude").value;
-        const longitude = document.getElementById("longitude").value;
-        const date = document.getElementById("date").value;
-        const time = document.getElementById("time").value;
-        const customer = "<%= session.userId %>"; // Assuming user ID is available in session
-        
-        const response = await fetch("/user/create-checkout-session", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                station,
-                quantity,
-                totalPrice,
-                addressType,
-                manualAddress,
-                locationAddress,
-                latitude,
-                longitude,
-                date,
-                time,
-                customer
-            })
-        });
-
-        const session = await response.json();
-        stripe.redirectToCheckout({ sessionId: session.id });
+        document.getElementById("checkout-button").addEventListener("click", async function () {
+    const fuelId = document.getElementById("fuelId").value;  // Get fuelId
+    const quantity = document.getElementById("quantity").value;
+    const totalPrice = document.getElementById("totalPrice").value;
+    const station = document.getElementById("station").value;
+    const addressType = document.querySelector('input[name="addressType"]:checked').value;
+    const manualAddress = document.getElementById("manual-address").value;
+    const locationAddress = document.getElementById("location-address").value;
+    const latitude = document.getElementById("latitude").value;
+    const longitude = document.getElementById("longitude").value;
+    const date = document.getElementById("date").value;
+    const time = document.getElementById("time").value;
+    const customer = "<%= session.userId %>"; // Assuming user ID is available in session
+    
+    const response = await fetch("/user/create-checkout-session", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            fuelId,  // ✅ Now sending fuelId
+            station,
+            quantity,
+            totalPrice,
+            addressType,
+            manualAddress,
+            locationAddress,
+            latitude,
+            longitude,
+            date,
+            time,
+            customer
+        })
     });
+
+    const session = await response.json();
+    stripe.redirectToCheckout({ sessionId: session.id });
+});
+
 
     </script>
 

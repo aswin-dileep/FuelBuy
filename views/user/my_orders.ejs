@@ -23,7 +23,7 @@
                         <th>Quantity (Liters)</th>
                         <th>Delivery Address</th>
                         <th>Preferred Date</th>
-                        <th>Preferred Time</th>
+                       
                         <th>Status</th>
                     </tr>
                 </thead>
@@ -31,7 +31,7 @@
                     <% orders.forEach(order => { %>
                         <tr>
                             <td><%= order._id %></td>
-                            <td><%= order.station.stationName %></td>
+                            <td><%= order.fuelStationId.userId.name %></td>
                             <td><%= order.quantity %></td>
                             <td>
                                 <% if (order.addressType === "manual") { %>
@@ -41,7 +41,7 @@
                                 <% } %>
                             </td>
                             <td><%= order.date %></td>
-                            <td><%= order.time %></td>
+                          
                             <td><%= order.status || "Pending" %></td>
                         </tr>
                     <% }) %>

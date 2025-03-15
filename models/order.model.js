@@ -2,15 +2,17 @@ const mongoose = require('mongoose');
 
 const OrdersSchema = new mongoose.Schema({
     userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-    fuelStationId: { type: mongoose.Schema.Types.ObjectId, ref: 'Fuelstation', required: true },
-    driverId: { type: mongoose.Schema.Types.ObjectId, ref: 'Driver', required: true },
+    fuelStationId: { type: mongoose.Schema.Types.ObjectId, ref: 'FuelStation', required: true },
+    driverId: { type: mongoose.Schema.Types.ObjectId, ref: 'Driver'},
+    fuelId: { type: mongoose.Schema.Types.ObjectId, ref: 'Fuel', required: true }, 
     quantity: { type: Number, required: true },
     totalPrice: { type: Number, required: true },
     addressType: { type: String, required: true },
-    manualAddress: { type: String, required: true },
+    manualAddress: { type: String },
     locationAddress: { type: String, required: true },
     latitude: { type: Number, required: true },
     longitude: { type: Number, required: true },
+    status:{type:String},
     date: { type: Date, required: true },
     createdAt: { type: Date, default: Date.now }
 });

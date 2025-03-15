@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Available Fuels</title>
+    <link rel="stylesheet" href="/css/user/fuelstations.css">
+</head>
+<body>
+
+    <%- include('header.ejs') %>
+
+    <div class="container">
+        <h2>Available Fuels at <%= station.stationName %></h2>
+        <table class="fuel-table">
+            <thead>
+                <tr>
+                    <th>Fuel Type</th>
+                    <th>Price</th>
+                    <th>Quantity</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% fuels.forEach((fuel) => { %>
+                    <tr>
+                        <td><%= fuel.type %></td>
+                        <td><%= fuel.price %>/-</td>
+                        <td><%= fuel.quantity %> Liters</td>
+                        <td>
+                            <a href="/user/order/<%= fuel._id %>" class="btn-order">Order</a>
+                            
+                        </td>
+                    </tr>
+                <% }) %>
+            </tbody>
+        </table>
+    </div>
+
+    <footer>
+        <p>&copy; 2025 FuelBuddy. All rights reserved.</p>
+    </footer>
+
+</body>
+</html>
