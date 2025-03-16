@@ -34,7 +34,6 @@ app.use('/admin',adminRouter);
 app.use('/user',userRouter);
 app.use('/driver',driverRouter);
 app.use('/fuelstation',fuelstationRouter);
-app.use('/webhook', require('./routes/webhook.route'));
 
 
 

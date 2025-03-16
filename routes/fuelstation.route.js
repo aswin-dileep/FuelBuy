@@ -9,9 +9,45 @@ const FuelStation = require('../models/fuelstation.model');
 const router = express.Router();
 
 
-router.get('/',(req,res)=>{
-    res.render('fuelstation/fuelstationhome',{ user: req.session });
-})
+router.get('/', async (req, res) => {
+    try {
+        if(!req.session.userId){
+            res.redirect('/login')
+        }
+        // Find the Fuel Station associated with the logged-in user
+        const fuelstation = await Fuelstations.findOne({ userId: req.session.userId });
+
+        if (!fuelstation) {
+            return res.status(404).send("Fuel Station not found");
+        }
+
+        const fuelStationId = fuelstation._id;
+        console.log("Fuel Station ID:", fuelStationId);
+
+        // Fetch fuel stock for the fuel station
+        const fuel = await Fuel.findOne({ fuelStationId });
+
+        console.log("Fuel Stock:", fuel ? fuel.quantity : 0);
+
+        // Count available drivers for the fuel station
+        const availableDriversCount = await Driver.countDocuments({ 
+            fuelStationId:req.session.userId,
+            status: "Available" 
+        });
+
+        console.log("Available Drivers Count:", availableDriversCount);
+
+        res.render('fuelstation/fuelstationhome', {
+            user: req.session,
+            availableStock: fuel ? fuel.quantity : 0, // If no fuel data, show 0
+            availableDrivers: availableDriversCount
+        });
+
+    } catch (error) {
+        console.error("Error fetching data:", error);
+        res.status(500).send("Server Error");
+    }
+});
 
 router.get('/driver_reg',(req,res)=>{
     
@@ -156,17 +192,21 @@ router.get("/orders", async (req, res) => {
         const fuelstationId = req.session.userId;
 
         if (!fuelstationId) {
-            return res.status(401).send("Unauthorized: Please log in.");
+            return res.redirect('/login');
         }
 
-        // Find the fuel station
-        const fuelStation = await Fuelstations.findById(fuelstationId);
+        // 🔹 Find the fuel station using findOne() instead of findById()
+        const fuelStation = await Fuelstations.findOne({ userId: fuelstationId });
+
         if (!fuelStation) {
             return res.status(404).send("Fuel station not found.");
         }
 
-        // Fetch orders for this fuel station
-        let orders = await Order.find({ station: fuelStation.stationName });
+
+        // 🔹 Fetch orders using the correct fuelStationId
+        let orders = await Order.find({ fuelStationId: fuelStation._id })
+        .populate('userId', 'name');
+       
 
         // Calculate distance for each order dynamically
         orders = orders.map(order => {
@@ -174,12 +214,12 @@ router.get("/orders", async (req, res) => {
 
             if (order.addressType === "location" && order.latitude && order.longitude) {
                 distance = calculateDistance(
-                    fuelStation.coordinates.lat, fuelStation.coordinates.lng,
+                    fuelStation.latitude, fuelStation.longitude, // Corrected coordinates
                     order.latitude, order.longitude
                 ).toFixed(2); // Round to 2 decimal places
             }
 
-            return { ...order.toObject(), distance }; // Convert Mongoose object to plain object & add distance
+            return { ...order.toObject(), distance };
         });
 
         res.render("fuelstation/orders", { orders });
@@ -187,6 +227,54 @@ router.get("/orders", async (req, res) => {
     } catch (err) {
         console.error("Error fetching orders:", err);
         res.status(500).send("Server Error");
+    }
+});
+
+router.get("/order-details/:orderId", async (req, res) => {
+    try {
+        const order = await Order.findById(req.params.orderId).populate("userId");
+        if (!order) {
+            return res.status(404).send("Order not found");
+        }
+        res.render("fuelstation/orderDetails", { order });
+    } catch (err) {
+        console.error(err);
+        res.status(500).send("Error retrieving order details");
+    }
+});
+
+// Get available drivers
+router.get("/get-available-drivers", async (req, res) => {
+    try {
+        const drivers = await Driver.find({ status: "Available" }).populate("userId", "name");
+        console.log("Available drivers:", drivers); // Debugging line
+        res.json(drivers);
+    } catch (error) {
+        console.error("Error fetching available drivers:", error);
+        res.status(500).json({ message: "Server error" });
+    }
+});
+
+
+router.post("/assign-order", async (req, res) => {
+    try {
+        const { orderId, driverId } = req.body;
+
+        const order = await Order.findById(orderId);
+        if (!order) return res.status(404).json({ message: "Order not found" });
+
+        const driver = await Driver.findById(driverId);
+        if (!driver) return res.status(404).json({ message: "Driver not found" });
+
+        // Assign the order
+        order.assignedDriver = driverId;
+        order.status = "Assigned";
+        await order.save();
+
+        res.json({ message: "Order assigned successfully!" });
+    } catch (error) {
+        console.error("Error assigning order:", error);
+        res.status(500).json({ message: "Internal Server Error" });
     }
 });
 
@@ -240,6 +328,16 @@ router.post('/drivers/:id/edit', async (req, res) => {
     } catch (error) {
         console.error(error);
         res.status(500).send('Server error');
+    }
+});
+
+router.get("/available-drivers", async (req, res) => {
+    try {
+        const drivers = await Driver.find({ available: true });
+        res.json(drivers);
+    } catch (err) {
+        console.error(err);
+        res.status(500).send("Error retrieving drivers");
     }
 });
 

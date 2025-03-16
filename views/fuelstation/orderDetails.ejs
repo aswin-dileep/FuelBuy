@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Details</title>
+    <link rel="stylesheet" href="/css/fuelstation/orders.css">
+</head>
+<body>
+
+    <%- include('sidebar.ejs') %>
+
+    <div class="main-content">
+        <div class="container">
+            <h2>Order Details</h2>
+            <table>
+                <tr><th>Customer Name</th><td><%= order.userId.name %></td></tr>
+                <tr><th>Quantity</th><td><%= order.quantity %> Liters</td></tr>
+                <tr><th>Status</th><td><%= order.status %></td></tr>
+                <tr><th>Distance</th><td><%= order.distance %> km</td></tr>
+                <tr><th>Address</th><td><%= order.locationAddress %></td></tr>
+                <tr><th>Preferred Date</th><td><%= order.date %></td></tr>
+                <tr><th>Assigned Driver</th><td><%= order.assignedDriver ? order.assignedDriver.name : "Not Assigned" %></td></tr>
+            </table>
+            <a href="/fuelstation/orders" class="btn-back">Back to Orders</a>
+        </div>
+    </div>
+
+</body>
+</html>

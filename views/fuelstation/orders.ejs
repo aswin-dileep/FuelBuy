@@ -4,61 +4,76 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Orders</title>
-    <link rel="stylesheet" href="/css/user/my-orders.css">
+    <link rel="stylesheet" href="/css/fuelstation/orders.css">
 </head>
 <body>
 
-    <!-- Header -->
-    <%- include('header.ejs') %>
+    <!-- Sidebar -->
+    <%- include('sidebar.ejs') %>
 
-    <div class="container">
-        <h2>My Orders</h2>
-        
-        <% if (orders.length > 0) { %>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Order ID</th>
-                        <th>Customer Name</th>
-                        <th>Quantity (Liters)</th>
-                        <th>Delivery Address</th>
-                        <th>Preferred Date</th>
-                        <th>Preferred Time</th>
-                        <th>Status</th>
-                        <th>Distance (km)</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <% orders.forEach(order => { %>
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="container">
+            <h2>My Orders</h2>
+            
+            <% if (orders.length > 0) { %>
+                <table id="ordersTable">
+                    <thead>
                         <tr>
-                            <td><%= order._id %></td>
-                            <td><%= order.customer %></td>
-                            <td><%= order.quantity %></td>
-                            <td>
-                                <% if (order.addressType === "manual") { %>
-                                    <%= order.manualAddress %>
-                                <% } else { %>
-                                    <%= order.locationAddress %> (Lat: <%= order.latitude %>, Lng: <%= order.longitude %>)
-                                <% } %>
-                            </td>
-                            <td><%= order.date %></td>
-                            <td><%= order.time %></td>
-                            <td><%= order.status || "Pending" %></td>
-                            <td><%= order.distance %> km</td>
+                            <th>Customer Name</th>
+                            <th>Quantity (Liters)</th>                            
+                            <th>Status</th>
+                            <th>Distance (km)</th>
+                            <th>Assign</th>
+                            <th>Details</th>
                         </tr>
-                    <% }) %>
-                </tbody>
-            </table>
-        <% } else { %>
-            <p>No orders found.</p>
-        <% } %>
+                    </thead>
+                    <tbody>
+                        <% orders.forEach(order => { %>
+                            <tr>
+                                <td><%= order.userId.name %></td>
+                                <td><%= order.quantity %></td>
+                                <td><%= order.status || "Pending" %></td>
+                                <td><%= order.distance %> km</td>
+                                <td>
+                                    <button class="assign-btn" data-order-id="<%= order._id %>">Assign Order</button>
+                                </td>
+                                <td>
+                                    <a href="/fuelstation/order-details/<%= order._id %>" class="btn-view">View</a>
+                                </td>
+                            </tr>
+                        <% }) %>
+                    </tbody>
+                </table>
 
+                <!-- Pagination -->
+                <div class="pagination">
+                    <button id="prevPage">Previous</button>
+                    <span id="pageNumber">1</span>
+                    <button id="nextPage">Next</button>
+                </div>
+
+            <% } else { %>
+                <p>No orders found.</p>
+            <% } %>
+        </div>
     </div>
 
-    <!-- Footer -->
-    <footer>
-        <p>&copy; 2025 FuelBuddy. All rights reserved.</p>
-    </footer>
+    <!-- Assign Order Modal (Moved outside of the table) -->
+    <div id="assignModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h3>Select Driver</h3>
+            <select id="driverSelect">
+                <!-- Options will be populated dynamically -->
+            </select>
+            <button id="confirmAssign">Assign</button>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="/js/assignOrder.js"></script>
+    <script src="/js/pagination.js"></script>
 
 </body>
 </html>

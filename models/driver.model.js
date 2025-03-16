@@ -5,6 +5,7 @@ const DriverSchema = new mongoose.Schema({
     fuelStationId: { type: mongoose.Schema.Types.ObjectId, ref: 'FuelStation', required: true },
     licenceNo: { type: String, required: true, trim: true },
     aadharNo: { type: String, required: true, trim: true },
+    status: { type: String, enum: ["Available", "on Duty"], default: "Available" }
 }, { timestamps: true }); // Automatically manages createdAt and updatedAt
 
 const driver = mongoose.model('Driver', DriverSchema);

@@ -3,7 +3,8 @@ const mongoose = require('mongoose');
 const OrdersSchema = new mongoose.Schema({
     userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
     fuelStationId: { type: mongoose.Schema.Types.ObjectId, ref: 'FuelStation', required: true },
-    driverId: { type: mongoose.Schema.Types.ObjectId, ref: 'Driver'},
+    assignedDriver: { type: mongoose.Schema.Types.ObjectId, ref: "Driver" },
+    vehicleId: { type: mongoose.Schema.Types.ObjectId, ref: 'Vehicle', default: null },
     fuelId: { type: mongoose.Schema.Types.ObjectId, ref: 'Fuel', required: true }, 
     quantity: { type: Number, required: true },
     totalPrice: { type: Number, required: true },
