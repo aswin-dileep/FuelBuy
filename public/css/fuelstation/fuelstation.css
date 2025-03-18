@@ -1,0 +1,132 @@
+/* Reset default styles */
+body, h1, p, ul, li, a {
+    margin: 0;
+    padding: 0;
+    text-decoration: none;
+    list-style: none;
+    font-family: Arial, sans-serif;
+}
+
+/* Sidebar styles */
+.sidebar {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 250px;
+    height: 100%;
+    background-color: #333;
+    color: white;
+    padding: 20px;
+}
+
+.sidebar-header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.sidebar-header .fuel {
+    font-size: 22px;
+    font-weight: bold;
+}
+
+.sidebar-header p {
+    font-size: 14px;
+    opacity: 0.8;
+}
+
+.nav-links li {
+    margin: 15px 0;
+}
+
+.nav-links a {
+    display: flex;
+    align-items: center;
+    color: white;
+    font-size: 16px;
+    padding: 10px;
+    border-radius: 5px;
+}
+
+.nav-links a:hover,
+.nav-links a.active {
+    background-color: #4CAF50;
+}
+
+.nav-links ion-icon {
+    margin-right: 10px;
+}
+
+/* Logout Button */
+.logout-section {
+    position: absolute;
+    bottom: 20px;
+    left: 20px;
+}
+
+.btn-danger {
+    display: flex;
+    align-items: center;
+    background-color: red;
+    padding: 10px 20px;
+    border-radius: 5px;
+    color: white;
+}
+
+.btn-danger:hover {
+    background-color: darkred;
+}
+
+/* Main content styles */
+.main-content {
+    margin-left: 270px; /* Adjust for sidebar */
+    padding: 20px;
+}
+
+/* Container Styles */
+.container {
+    max-width: 800px;
+    margin: auto;
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+/* Table Styles */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+th, td {
+    padding: 10px;
+    border: 1px solid #ccc;
+    text-align: center;
+}
+
+th {
+    background-color: #4CAF50;
+    color: white;
+}
+
+/* Button Styles */
+.btn {
+    display: inline-block;
+    padding: 10px 20px;
+    margin-top: 10px;
+    color: white;
+    background-color: #4CAF50;
+    text-decoration: none;
+    border-radius: 5px;
+}
+
+.btn:hover {
+    background-color: #45a049;
+}
+
+/* Error Message */
+.error {
+    color: red;
+}

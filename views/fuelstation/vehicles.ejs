@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fuel Station - Vehicles</title>
+    <link rel="stylesheet" href="/css/fuelstation/fuelstation.css">
+    <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
+</head>
+<body>
+
+    <!-- Sidebar -->
+    <nav class="sidebar">
+        <div class="sidebar-header">
+            <span class="fuel">Fuel Station</span>
+            <p>Dashboard</p>
+        </div>
+        
+        <ul class="nav-links">
+            <li><a href="/fuelstation"><ion-icon name="home"></ion-icon> Home</a></li>
+            <li><a href="/fuelstation/drivers"><ion-icon name="people"></ion-icon> Drivers</a></li>              
+            <li><a href="/fuelstation/fuels"><ion-icon name="water"></ion-icon> Fuels</a></li>
+            <li><a href="/fuelstation/orders"><ion-icon name="document-text"></ion-icon> Orders</a></li>
+            <li><a href="/fuelstation/vehicles" class="active"><ion-icon name="document-text"></ion-icon> Vehicles</a></li>
+        </ul>
+        
+        <div class="logout-section">
+            <a href="/" class="btn-danger"><ion-icon name="log-out"></ion-icon> Logout</a>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="container">
+            <h1>Vehicles</h1>
+            <a href="/fuelstation/vehicles/add" class="btn">Add Vehicle</a>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Plate Number</th>
+                        <th>Capacity (L)</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% if (vehicles.length > 0) { %>
+                        <% vehicles.forEach(vehicle => { %>
+                            <tr>
+                                <td><%= vehicle.plateNumber %></td>
+                                <td><%= vehicle.capacity %></td>
+                                <td><%= vehicle.status %></td>
+                            </tr>
+                        <% }) %>
+                    <% } else { %>
+                        <tr>
+                            <td colspan="3">No vehicles found</td>
+                        </tr>
+                    <% } %>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</body>
+</html>

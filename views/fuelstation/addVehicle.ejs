@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Vehicle</title>
+    <link rel="stylesheet" href="/css/fuelstation/fuelstation.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Add Vehicle</h1>
+
+        
+
+        <form action="/fuelstation/vehicles/add" method="POST">
+            <label for="plateNumber">Plate Number:</label>
+            <input type="text" name="plateNumber" id="plateNumber" required>
+
+            <label for="capacity">Capacity (L):</label>
+            <input type="number" name="capacity" id="capacity" required>
+
+            <button type="submit">Add Vehicle</button>
+        </form>
+
+        <a href="/fuelstation/vehicles">Back to Vehicles</a>
+    </div>
+</body>
+</html>

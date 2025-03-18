@@ -4,50 +4,45 @@
     padding: 0;
     box-sizing: border-box;
     font-family: Arial, sans-serif;
-    
 }
 
-/* Background Image */
+/* Background */
 body {
-    background-image: url('../../img/driverhome.png');
-    background-repeat: no-repeat;
-    background-position: center;
-    background-attachment: fixed;
-    background-size: cover;
     background-color: #121212;
     color: white;
-    
+    display: flex;
+    min-height: 100vh;
 }
 
-/* Navbar */
-.navbar {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 15px 50px;
-    background-color: rgba(18, 18, 18, 0.9); /* Dark semi-transparent */
-    color: white;
+/* Sidebar */
+.sidebar {
+    width: 250px;
+    height: 100vh;
+    background-color: #1c1c1c;
     position: fixed;
     top: 0;
-    width: 100%;
-    z-index: 1000;
+    left: 0;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 .logo {
-    display: flex;
-    flex-direction: column;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.logo .fuel {
     color: white;
+    font-size: 22px;
     font-weight: bold;
 }
 
-.fuel {
-    color: white;
-    font-size: 22px;
-}
-
-.buddy {
+.logo .buddy {
     color: #4CAF50;
     font-size: 22px;
+    font-weight: bold;
 }
 
 .logo p {
@@ -55,77 +50,69 @@ body {
     color: #aaa;
 }
 
+/* Sidebar Links */
 .nav-links {
     list-style: none;
-    display: flex;
-    gap: 25px;
+    width: 100%;
+    padding: 0;
 }
 
 .nav-links li {
-    display: inline;
+    width: 100%;
+    text-align: center;
+    margin: 10px 0;
 }
 
 .nav-links a {
-    text-decoration: none;
+    display: block;
+    padding: 12px;
     color: white;
+    text-decoration: none;
     font-size: 16px;
     font-weight: bold;
-    transition: 0.3s ease;
+    transition: 0.3s;
+    border-radius: 5px;
 }
 
-.nav-links a:hover, .nav-links .active {
-    color: #4CAF50;
-    border-bottom: 2px solid #4CAF50;
+.nav-links a:hover,
+.nav-links .active {
+    background-color: #4CAF50;
+    color: white;
 }
 
-/* logout button */
-
+/* Logout Button */
 .btn-danger {
-    background-color: #dc3545; /* Bootstrap Danger Red */
-    color: white; /* White text */
-    padding: 10px 20px; /* Padding for a good button size */
+    background-color: #dc3545;
+    color: white;
+    padding: 10px 20px;
     font-size: 16px;
     font-weight: bold;
     border: none;
-    border-radius: 5px; /* Slightly rounded corners */
+    border-radius: 5px;
     cursor: pointer;
     transition: 0.3s ease-in-out;
+    width: 100%;
+    text-align: center;
 }
 
 .btn-danger:hover {
-    background-color: #c82333; /* Darker red on hover */
+    background-color: #c82333;
 }
 
-.btn-danger:active {
-    background-color: #a71d2a; /* Even darker red when clicked */
-    transform: scale(0.98); /* Slight shrink effect */
-}
-
-.btn-danger:disabled {
-    background-color: #e4606d;
-    cursor: not-allowed;
-    opacity: 0.7;
+/* Main Content */
+.main-content {
+    margin-left: 250px;
+    flex: 1;
+    padding: 20px;
 }
 
 /* Footer */
-/* Ensure the page takes full height */
-html, body {
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-}
-
-/* Make the content area grow to push the footer down */
-.main-content {
-    flex: 1; /* This makes the content area take up all available space */
-}
-
-/* Footer always at bottom */
 footer {
     text-align: center;
     padding: 15px;
     background-color: #000;
     color: white;
-    margin-top: auto; /* Pushes footer to the bottom */
     width: 100%;
+    position: absolute;
+    bottom: 0;
 }

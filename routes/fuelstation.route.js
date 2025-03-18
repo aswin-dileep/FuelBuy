@@ -3,11 +3,19 @@ const User = require('../models/user.model');
 const Driver = require('../models/driver.model');
 const Order = require('../models/order.model');
 const Fuelstations = require('../models/fuelstation.model');
+const Vehicle = require("../models/vehicle.model");
 const Fuel = require('../models/fuel.model');
 const bcrypt = require('bcrypt');
 const FuelStation = require('../models/fuelstation.model');
 const router = express.Router();
 
+// Middleware to check if fuel station is logged in
+const isFuelStation = (req, res, next) => {
+    if (req.session.userId) {
+        return next();
+    }
+    res.redirect("/login");
+};
 
 router.get('/', async (req, res) => {
     try {
@@ -371,6 +379,51 @@ router.post("/add_fuel", async (req, res) => {
     } catch (error) {
         console.error(error);
         res.redirect("/fuelstation/add_fuel");
+    }
+});
+
+
+//vehicle details 
+
+router.get("/vehicles", isFuelStation, async (req, res) => {
+    try {
+        const fuelStation = await FuelStation.findOne({userId:req.session.userId});
+        const fuelStationId = fuelStation._id;
+        const vehicles = await Vehicle.find({ fuelStationId });
+
+        res.render("fuelstation/vehicles", { vehicles });
+    } catch (error) {
+        console.error(error);
+        res.status(500).send("Error fetching vehicles");
+    }
+});
+
+// 📌 Route to show the vehicle registration form
+router.get("/vehicles/add", isFuelStation, (req, res) => {
+    res.render("fuelstation/addVehicle");
+});
+
+// 📌 Route to handle vehicle registration
+router.post("/vehicles/add", isFuelStation, async (req, res) => {
+    try {
+        const { capacity, plateNumber } = req.body;
+        const fuelStation = await FuelStation.findOne({userId:req.session.userId});
+        const fuelStationId = fuelStation._id;
+
+        // Ensure unique plate number
+        const existingVehicle = await Vehicle.findOne({ plateNumber });
+        if (existingVehicle) {
+            return res.render("fuelstation/addVehicle", { error: "Plate number already exists" });
+        }
+
+        // Create new vehicle
+        const vehicle = new Vehicle({ fuelStationId, capacity, plateNumber });
+        await vehicle.save();
+
+        res.redirect("/fuelstation/vehicles"); // Redirect to the vehicle list
+    } catch (error) {
+        console.error(error);
+        res.status(500).send("Error adding vehicle");
     }
 });
 
