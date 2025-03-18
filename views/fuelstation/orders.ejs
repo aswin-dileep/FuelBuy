@@ -36,7 +36,11 @@
                                 <td><%= order.status || "Pending" %></td>
                                 <td><%= order.distance %> km</td>
                                 <td>
-                                    <button class="assign-btn" data-order-id="<%= order._id %>">Assign Order</button>
+                                    <% if (order.assignedDriver && order.assignedDriver.userId) { %>
+                                        <%= order.assignedDriver.userId.name %>
+                                    <% } else { %>
+                                        <button class="assign-btn" data-order-id="<%= order._id %>">Assign Order</button>
+                                    <% } %>
                                 </td>
                                 <td>
                                     <a href="/fuelstation/order-details/<%= order._id %>" class="btn-view">View</a>
@@ -59,7 +63,7 @@
         </div>
     </div>
 
-    <!-- Assign Order Modal (Moved outside of the table) -->
+    <!-- Assign Order Modal -->
     <div id="assignModal" class="modal">
         <div class="modal-content">
             <span class="close">&times;</span>
