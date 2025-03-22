@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Details</title>
+    <link rel="stylesheet" href="/css/user/order-details.css">
+</head>
+<body>
+
+    <!-- Header -->
+    <%- include('header.ejs') %>
+
+    <div class="container">
+        <h2>Order Details</h2>
+
+        <table>
+            <tr>
+                <th>Order ID:</th>
+                <td><%= order._id %></td>
+            </tr>
+            <tr>
+                <th>Fuel Station:</th>
+                <td><%= order.fuelStationId.userId.name %></td>
+            </tr>
+            <tr>
+                <th>Quantity (Liters):</th>
+                <td><%= order.quantity %></td>
+            </tr>
+            <tr>
+                <th>Delivery Address:</th>
+                <td>
+                    <% if (order.addressType === "manual") { %>
+                        <%= order.manualAddress %>
+                    <% } else { %>
+                        <%= order.locationAddress %> (Lat: <%= order.latitude %>, Lng: <%= order.longitude %>)
+                    <% } %>
+                </td>
+            </tr>
+            <tr>
+                <th>Preferred Date:</th>
+                <td><%= order.date %></td>
+            </tr>
+            <tr>
+                <th>Status:</th>
+                <td><%= order.status || "Pending" %></td>
+            </tr>
+        </table>
+
+        <a href="/user/my-orders" class="btn">Back to Orders</a>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2025 FuelBuddy. All rights reserved.</p>
+    </footer>
+
+</body>
+</html>

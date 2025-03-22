@@ -2,9 +2,10 @@ const express = require('express');
 const Orders = require('../models/order.model');
 const Fuelstations = require('../models/fuelstation.model');
 const Driver = require('../models/driver.model');
+const Vehicle = require('../models/vehicle.model');
 const geolib = require('geolib');
 const router = express.Router();
-
+const mongoose = require("mongoose");
 function isAuthenticated(req, res, next) {
     if (req.session.userId && req.session.role === 'Driver') {
         return next();
@@ -115,6 +116,81 @@ router.post("/update-order-status", async (req, res) => {
     } catch (error) {
         console.error("Error updating order status:", error);
         res.status(500).json({ error: "Internal server error." });
+    }
+});
+
+// Vehicles Page - Show Available Vehicles
+router.get("/vehicles", async (req, res) => {
+    try {
+        const driverId = req.session.userId;
+        if (!driverId) {
+            return res.status(401).send("Unauthorized: Please log in.");
+        }
+
+        // 1. Find the driver FIRST
+        const driver = await Driver.findOne({ userId: driverId });
+        if (!driver) {
+            console.log("❌ Driver not found for userId:", driverId);
+            return res.status(404).send("Driver not found.");
+        }
+
+        // 2. Then find the fuel station
+        const fuelStation = await Fuelstations.findOne({ userId: driver.fuelStationId });
+        if (!fuelStation) {
+            console.log("⛽ Fuel station not found for ID:", driver.fuelStationId);
+            return res.status(404).send("Associated fuel station not found.");
+        }
+
+        console.log(fuelStation._id)
+
+        // 3. Find vehicles (no need for ObjectId conversion)
+        const vehicles = await Vehicle.find({
+            fuelStationId: fuelStation._id,
+            status: "Available"
+        });
+
+        res.render("driver/vehicles", { vehicles });
+
+    } catch (error) {
+        console.error("⚠️ Error fetching vehicles:", error);
+        res.status(500).send("Internal Server Error");
+    }
+});
+
+
+
+
+// Occupy Vehicle - Driver Assigns a Vehicle
+router.post("/vehicles/occupy/:vehicleId", async (req, res) => {
+    try {
+        const driverId = req.session.userId;
+        const vehicleId = req.params.vehicleId;
+
+        if (!driverId) {
+            return res.status(401).send("Unauthorized: Please log in.");
+        }
+
+        // Check if the driver is already using a vehicle
+        const driver = await Driver.findOne({ userId: driverId });
+
+        if (!driver) {
+            return res.status(404).send("Driver not found.");
+        }
+
+        const assignedVehicle = await Vehicle.findOne({ fuelStationId: driver.fuelStationId, status: "In Use" });
+
+        if (assignedVehicle) {
+            return res.status(400).send("You are already assigned to a vehicle.");
+        }
+
+        // Assign vehicle to driver
+        await Vehicle.findByIdAndUpdate(vehicleId, { status: "In Use" });
+
+        res.redirect("/driver/vehicles");
+
+    } catch (error) {
+        console.error("Error occupying vehicle:", error);
+        res.status(500).send("Internal Server Error");
     }
 });
 

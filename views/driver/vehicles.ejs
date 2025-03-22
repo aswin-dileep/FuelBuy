@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Available Vehicles</title>
+    <link rel="stylesheet" href="/css/driver/vehicles.css">
+</head>
+<body>
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="logo">
+            <span class="fuel">Delivery Driver</span>
+            <p>Doorstep Fuel Delivery</p>
+        </div>
+        <ul class="nav-links">
+            <li><a href="/driver">Home</a></li>
+            <li><a href="/driver/orders">My Orders</a></li>              
+            <li><a href="/driver/vehicles" class="active">Vehicles</a></li>
+            <li><a href="#">Orders</a></li>
+            <li><a href="/logout" class="btn-danger">Logout</a></li>
+        </ul>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <h2>Available Vehicles</h2>
+
+        <% if (vehicles.length > 0) { %>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Plate Number</th>
+                        <th>Capacity (Liters)</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% vehicles.forEach(vehicle => { %>
+                        <tr>
+                            <td><%= vehicle.plateNumber %></td>
+                            <td><%= vehicle.capacity %></td>
+                            <td><%= vehicle.status %></td>
+                            <td>
+                                <form action="/driver/vehicles/occupy/<%= vehicle._id %>" method="POST">
+                                    <button type="submit" class="occupy-btn">Occupy</button>
+                                </form>
+                            </td>
+                        </tr>
+                    <% }) %>
+                </tbody>
+            </table>
+        <% } else { %>
+            <p class="no-vehicles">No available vehicles.</p>
+        <% } %>
+    </div>
+
+</body>
+</html>

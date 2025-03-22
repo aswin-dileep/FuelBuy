@@ -13,7 +13,7 @@
 
     <div class="container">
         <h2>My Orders</h2>
-        
+
         <% if (orders.length > 0) { %>
             <table>
                 <thead>
@@ -21,10 +21,9 @@
                         <th>Order ID</th>
                         <th>Fuel Station</th>
                         <th>Quantity (Liters)</th>
-                        <th>Delivery Address</th>
-                        <th>Preferred Date</th>
-                       
                         <th>Status</th>
+                        <th>Details</th>
+                        <th>Track</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -33,16 +32,13 @@
                             <td><%= order._id %></td>
                             <td><%= order.fuelStationId.userId.name %></td>
                             <td><%= order.quantity %></td>
-                            <td>
-                                <% if (order.addressType === "manual") { %>
-                                    <%= order.manualAddress %>
-                                <% } else { %>
-                                    <%= order.locationAddress %> (Lat: <%= order.latitude %>, Lng: <%= order.longitude %>)
-                                <% } %>
-                            </td>
-                            <td><%= order.date %></td>
-                          
                             <td><%= order.status || "Pending" %></td>
+                            <td>
+                                <a  href="/user/order-details/<%= order._id %>">
+                                    <button style="background-color: blue; color: white;">View</button>
+                                </a>
+                            </td>
+                            <td><button>Track</button></td>
                         </tr>
                     <% }) %>
                 </tbody>
@@ -50,8 +46,21 @@
         <% } else { %>
             <p>No orders found.</p>
         <% } %>
-
     </div>
+
+    <!-- Pagination Controls -->
+    <div class="pagination">
+        <% if (currentPage > 1) { %>
+            <a href="/user/my-orders?page=<%= currentPage - 1 %>&limit=<%= limit %>">« Previous</a>
+        <% } %>
+    
+        <span>Page <%= currentPage %> of <%= totalPages %></span>
+    
+        <% if (currentPage < totalPages) { %>
+            <a href="/user/my-orders?page=<%= currentPage + 1 %>&limit=<%= limit %>">Next »</a>
+        <% } %>
+    </div>
+    
 
     <!-- Footer -->
     <footer>

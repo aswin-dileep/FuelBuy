@@ -83,26 +83,77 @@ router.get('/fuelstation/:id/fuels', async (req, res) => {
 router.get("/my-orders", async (req, res) => {
     try {
         const customerId = req.session.userId;
-
         if (!customerId) {
             return res.status(401).send("Unauthorized: Please log in.");
         }
 
-        // 🔹 Ensure the Order model has a field storing the customer ID
-        const orders = await Order.find({ userId: customerId })
-    .populate({
-        path: 'fuelStationId',
-        populate: {
-            path: 'userId',
-            model: 'User'
-        }
-    })
-    .sort({ createdAt: -1 });
+        // 🔹 Get pagination values from query parameters
+        let page = parseInt(req.query.page) || 1;  // Default to page 1
+        let limit = parseInt(req.query.limit) || 5; // Default to 5 orders per page
 
-        res.render("user/my_orders", { orders });
+        // Ensure page and limit are positive numbers
+        if (page < 1) page = 1;
+        if (limit < 1) limit = 5;
+        
+        const skip = (page - 1) * limit;
+
+        // 🔹 Get total order count
+        const totalOrders = await Order.countDocuments({ userId: customerId });
+
+        // Calculate total pages (at least 1)
+        const totalPages = Math.max(1, Math.ceil(totalOrders / limit));
+
+        // Ensure page does not exceed totalPages
+        if (page > totalPages) page = totalPages;
+
+        // 🔹 Fetch paginated orders sorted by newest first
+        const orders = await Order.find({ userId: customerId })
+            .populate({
+                path: 'fuelStationId',
+                populate: {
+                    path: 'userId',
+                    model: 'User'
+                }
+            })
+            .sort({ createdAt: -1 }) // Newest orders first
+            .skip(skip)
+            .limit(limit);
+
+        res.render("user/my_orders", { 
+            orders, 
+            currentPage: page, 
+            totalPages, 
+            limit 
+        });
 
     } catch (error) {
         console.error("Error fetching orders:", error);
+        res.status(500).send("Internal Server Error");
+    }
+});
+
+router.get("/order-details/:orderId", async (req, res) => {
+    try {
+        const orderId = req.params.orderId;
+
+        // Fetch order details from the database
+        const order = await Order.findById(orderId)
+            .populate({
+                path: 'fuelStationId',
+                populate: {
+                    path: 'userId',
+                    model: 'User'
+                }
+            });
+
+        if (!order) {
+            return res.status(404).send("Order not found");
+        }
+
+        res.render("user/order_details", { order });
+
+    } catch (error) {
+        console.error("Error fetching order details:", error);
         res.status(500).send("Internal Server Error");
     }
 });
