@@ -3,109 +3,130 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Orders</title>
-    <link rel="stylesheet" href="/css/driver/orders.css">
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> <!-- jQuery for AJAX -->
+    <title>Driver - Orders</title>
+    <link rel="stylesheet" href="/css/driver/driver.css">
 </head>
 <body>
-
-    <!-- Header -->
-    <%- include('header.ejs') %>
-
-    <div class="container">
-        <h2>My Orders</h2>
-        
-        <% if (orders.length > 0) { %>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Order ID</th>
-                        <th>Customer</th>
-                        <th>Quantity (Liters)</th>
-                        <th>Update Status</th>
-                        <th>Distance</th>
-                        <th>Track Location</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <% orders.forEach(order => { %>
-                        <tr data-order-id="<%= order._id %>">
-                            <td><%= order._id %></td>
-                            <td><%= order.customer.name %></td>
-                            <td><%= order.quantity %></td>
-                            <td>
-                                <form action="/driver/update-order-status" method="post">
-                                    <input type="hidden" name="orderId" value="<%= order._id %>"> 
-                                    <select class="status-select" name="status">
-                                        <option value="Pending" <%= order.status === "Pending" ? "selected" : "" %>>Pending</option>
-                                        <option value="On the Way" <%= order.status === "On the Way" ? "selected" : "" %>>On the Way</option>
-                                        <option value="Delivered" <%= order.status === "Delivered" ? "selected" : "" %>>Delivered</option>
-                                    </select>
-                                    <button type="submit" class="update-status-btn">Update</button>
-                                </form>
-                            </td>
-                            <td><%= order.distance.toFixed(2) %> km</td>
-                            <td>
-                                <button 
-                                    class="track-btn" 
-                                    data-lat="<%= order.latitude %>" 
-                                    data-lng="<%= order.longitude %>">
-                                    View Location
-                                </button>
-                            </td>
-                        </tr>
-                    <% }) %>
-                </tbody>
-            </table>
-        <% } else { %>
-            <p>No orders found.</p>
-        <% } %>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="logo">
+            <span class="fuel">Delivery Driver</span>
+            <p>Doorstep Fuel Delivery</p>
+        </div>
+        <ul class="nav-links">
+            <li><a href="/driver" class="active">Home</a></li>
+            <li><a href="/driver/orders">My Orders</a></li>
+            <li><a href="#">Stock Update</a></li>
+            <li><a href="#">Orders</a></li>
+            <li><a href="/logout" class="btn-danger">Logout</a></li>
+        </ul>
     </div>
 
-    <!-- Footer -->
-    <footer>
-        <p>&copy; 2025 FuelBuddy. All rights reserved.</p>
-    </footer>
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="container">
+            <h1>Assigned Orders</h1>
+            <% if (orders.length > 0) { %>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Fuel Type</th>
+                            <th>Quantity (L)</th>
+                            <th>Customer</th>
+                            <th>Status</th>
+                            <th>Distance (km)</th>
+                            <th>Location</th>
+                            <th>Order Details</th>
+                        </tr>
+                    </thead>
+                    <tbody id="orders-table-body">
+                        <% orders.forEach(order => { %>
+                            <tr>
+                                <td><%= order.fuelId.type %></td>
+                                <td><%= order.quantity %></td>
+                                <td><%= order.userId.name %></td>
+                                <td><%= order.status %></td>
+                                <td class="distance-cell" data-lat="<%= order.latitude %>" data-lon="<%= order.longitude %>">Calculating...</td>
+                                <td><button onclick="trackOrder('<%= order.latitude %>', '<%= order.longitude %>')">Track Order</button></td>
+                                <td><a href="/driver/orders/<%= order._id %>">View</a></td>
+                            </tr>
+                        <% }) %>
+                    </tbody>
+                </table>
+            <% } else { %>
+                <p>No assigned orders found.</p>
+            <% } %>
+        </div>
+    </div>
 
     <script>
-        document.addEventListener("DOMContentLoaded", () => {
-            const locationButtons = document.querySelectorAll(".track-btn");
+        // Function to get driver's current location and open Google Maps with directions
+        function trackOrder(orderLat, orderLon) {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        const driverLat = position.coords.latitude;
+                        const driverLon = position.coords.longitude;
+                        const googleMapsUrl = `https://www.google.com/maps/dir/?api=1&origin=${driverLat},${driverLon}&destination=${orderLat},${orderLon}`;
+                        window.open(googleMapsUrl, '_blank');
+                    },
+                    (error) => {
+                        console.error('Error obtaining location:', error);
+                        alert('Unable to retrieve your location. Please ensure location services are enabled.');
+                    },
+                    { timeout: 10000 }
+                );
+            } else {
+                alert('Geolocation is not supported by this browser.');
+            }
+        }
 
-            locationButtons.forEach(button => {
-                button.addEventListener("click", function() {
-                    const destinationLat = this.getAttribute("data-lat");
-                    const destinationLng = this.getAttribute("data-lng");
+        // Function to calculate distance between two coordinates using the Haversine formula
+        function calculateDistance(lat1, lon1, lat2, lon2) {
+            const toRadians = (angle) => (angle * Math.PI) / 180;
+            const R = 6371; // Earth's radius in kilometers
+            const dLat = toRadians(lat2 - lat1);
+            const dLon = toRadians(lon2 - lon1);
+            const a =
+                Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                Math.cos(toRadians(lat1)) *
+                Math.cos(toRadians(lat2)) *
+                Math.sin(dLon / 2) * Math.sin(dLon / 2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+            return R * c; // Distance in kilometers
+        }
 
-                    if (!destinationLat || !destinationLng) {
-                        alert("Destination coordinates are missing.");
-                        return;
-                    }
-
-                    if (!navigator.geolocation) {
-                        alert("Geolocation is not supported by your browser.");
-                        return;
-                    }
-
-                    // Get current location
-                    navigator.geolocation.getCurrentPosition(
-                        (position) => {
-                            const currentLat = position.coords.latitude;
-                            const currentLng = position.coords.longitude;
-
-                            // Redirect to Google Maps with source and destination
-                            const googleMapsURL = `https://www.google.com/maps/dir/?api=1&origin=${currentLat},${currentLng}&destination=${destinationLat},${destinationLng}&travelmode=driving`;
-
-                            window.open(googleMapsURL, "_blank");
-                        },
-                        (error) => {
-                            alert("Unable to retrieve location. Please enable GPS and try again.");
-                            console.error(error);
-                        }
-                    );
-                });
+        // Function to update distances in the table
+        function updateDistances(driverLat, driverLon) {
+            const distanceCells = document.querySelectorAll('.distance-cell');
+            distanceCells.forEach(cell => {
+                const orderLat = parseFloat(cell.getAttribute('data-lat'));
+                const orderLon = parseFloat(cell.getAttribute('data-lon'));
+                const distance = calculateDistance(driverLat, driverLon, orderLat, orderLon).toFixed(2);
+                cell.textContent = `${distance} km`;
             });
-        });
-    </script>
+        }
 
+        // Function to get driver's current location and update distances
+        function getDriverLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        const { latitude, longitude } = position.coords;
+                        updateDistances(latitude, longitude);
+                    },
+                    (error) => {
+                        console.error('Error obtaining location:', error);
+                    },
+                    { timeout: 10000 }
+                );
+            } else {
+                console.error('Geolocation is not supported by this browser.');
+            }
+        }
+
+        // Call the function to get the driver's location and update distances
+        getDriverLocation();
+    </script>
 </body>
 </html>

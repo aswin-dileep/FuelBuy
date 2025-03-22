@@ -2,8 +2,15 @@ const express = require('express');
 const Orders = require('../models/order.model');
 const Fuelstations = require('../models/fuelstation.model');
 const Driver = require('../models/driver.model');
+const geolib = require('geolib');
 const router = express.Router();
 
+function isAuthenticated(req, res, next) {
+    if (req.session.userId && req.session.role === 'Driver') {
+        return next();
+    }
+    res.redirect('/login');
+}
 
 router.get('/',(req,res)=>{
     res.render('driver/driverhome');
@@ -11,63 +18,79 @@ router.get('/',(req,res)=>{
 
 // Haversine formula for distance calculation
 function calculateDistance(lat1, lon1, lat2, lon2) {
-    const toRad = (value) => (value * Math.PI) / 180;
-    const R = 6371; // Earth radius in km
-    const dLat = toRad(lat2 - lat1);
-    const dLon = toRad(lon2 - lon1);
-    const a =
-        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-        Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
-        Math.sin(dLon / 2) * Math.sin(dLon / 2);
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    return R * c; // Distance in km
+    return geolib.getDistance(
+        { latitude: lat1, longitude: lon1 },
+        { latitude: lat2, longitude: lon2 }
+    ) / 1000; // Convert meters to kilometers
 }
 
 router.get('/orders', async (req, res) => {
     try {
-        // Check if the driver is logged in
-        if (!req.session.userId) {
-            return res.status(401).send("Unauthorized: Please log in.");
-        }
+        const driverId = req.session.userId;
 
-        // Find the logged-in driver
-        const driver = await Driver.findById(req.session.userId);
+        // Fetch driver details
+        const driver = await Driver.findOne({ userId: driverId }).populate('userId');
         if (!driver) {
-            return res.status(404).send("Driver not found.");
+            return res.status(404).send('Driver not found.');
         }
 
-        // Get the fuel station details
-        const fuelStation = await Fuelstations.findById(driver.fuelStationId);
-        if (!fuelStation) {
-            return res.status(404).send("Fuel station not found.");
+        // Fetch assigned orders
+        const orders = await Orders.find({ assignedDriver: driver._id })
+            .populate('userId', 'name')
+            .populate('fuelId', 'type');
+
+        // Render the orders page with the fetched orders
+        res.render('driver/orders', { orders });
+    } catch (err) {
+        console.error('Error fetching assigned orders:', err);
+        res.status(500).send('Server Error');
+    }
+});
+
+// Route to display order details
+router.get('/orders/:orderId', async (req, res) => {
+    try {
+        const orderId = req.params.orderId;
+        const order = await Orders.findById(orderId)
+            .populate('userId', 'name address')
+            .populate('fuelId', 'type');
+        if (!order) {
+            return res.status(404).send('Order not found.');
+        }
+        res.render('driver/orderDetails', { order });
+    } catch (err) {
+        console.error('Error fetching order details:', err);
+        res.status(500).send('Server Error');
+    }
+});
+
+// Route to update order status
+router.put('/orders/:orderId/status', async (req, res) => {
+    try {
+        const { orderId } = req.params;
+        const { status } = req.body;
+
+        // Validate status
+        const validStatuses = ['On the way', 'Delivered'];
+        if (!validStatuses.includes(status)) {
+            return res.status(400).send('Invalid status.');
         }
 
-        // Fetch orders assigned to the driver's fuel station & populate customer details
-        const orders = await Orders.find({ station: driver.fuelStationId })
-            .populate("customer");
+        // Update order status
+        const order = await Orders.findByIdAndUpdate(
+            orderId,
+            { status },
+            { new: true }
+        );
 
-        // Add distance calculation for each order
-        const ordersWithDistance = orders.map(order => {
-            let distance = Number.MAX_VALUE; // Default to max value
-            if (order.latitude && order.longitude && fuelStation.coordinates) {
-                distance = calculateDistance(
-                    fuelStation.coordinates.lat,
-                    fuelStation.coordinates.lng,
-                    order.latitude,
-                    order.longitude
-                );
-            }
-            return { ...order.toObject(), distance };
-        });
+        if (!order) {
+            return res.status(404).send('Order not found.');
+        }
 
-        // 🔹 Sort orders by distance (Ascending order)
-        ordersWithDistance.sort((a, b) => a.distance - b.distance);
-
-        res.render("driver/orders", { orders: ordersWithDistance });
-
-    } catch (error) {
-        console.error("Error fetching orders:", error);
-        res.status(500).send("Internal Server Error");
+        res.status(200).send('Order status updated successfully.');
+    } catch (err) {
+        console.error('Error updating order status:', err);
+        res.status(500).send('Server Error');
     }
 });
 
