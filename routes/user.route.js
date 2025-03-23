@@ -385,4 +385,17 @@ router.post("/webhook", express.raw({ type: "application/json" }), async (req, r
 });
 
 
+router.get("/track-order/:orderId", async (req, res) => {
+    try {
+        const order = await Order.findById(req.params.orderId).populate("fuelStationId");
+
+        if (!order) return res.status(404).send("Order not found");
+
+        res.render("user/track", { order });
+    } catch (error) {
+        res.status(500).send("Internal Server Error");
+    }
+});
+
+
 module.exports = router;

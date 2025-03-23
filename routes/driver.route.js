@@ -13,9 +13,20 @@ function isAuthenticated(req, res, next) {
     res.redirect('/login');
 }
 
-router.get('/',(req,res)=>{
-    res.render('driver/driverhome');
-})
+router.get('/', async (req, res) => {
+    try {
+        const driver = await Driver.findOne({userId:req.session.userId})
+        const driverId =driver._id;  // Assuming you store the logged-in driver ID in `req.user`
+        
+        // Find the active order assigned to the driver
+        const assignedOrder = await Orders.findOne({ assignedDriver: driverId, status: { $nin: ["Delivered", "Cancelled"] } });
+
+        res.render('driver/driverhome', { assignedOrder });  // ✅ Pass assignedOrder to EJS
+    } catch (error) {
+        console.error("Error fetching assigned order:", error);
+        res.status(500).send("Server Error");
+    }
+});
 
 // Haversine formula for distance calculation
 function calculateDistance(lat1, lon1, lat2, lon2) {
@@ -219,9 +230,6 @@ router.post("/my-vehicle/release", async (req, res) => {
     }
 });
 
-
-
-
 // Occupy Vehicle - Driver Assigns a Vehicle
 router.post("/vehicles/occupy/:vehicleId", async (req, res) => {
     try {
@@ -255,5 +263,27 @@ router.post("/vehicles/occupy/:vehicleId", async (req, res) => {
         res.status(500).send("Internal Server Error");
     }
 });
+
+router.post("/update-location", async (req, res) => {
+    const { orderId, latitude, longitude } = req.body;
+
+    try {
+        const order = await Order.findById(orderId);
+        if (!order) return res.status(404).json({ error: "Order not found" });
+
+        // Update the delivery vehicle's location
+        order.currentLocation = { latitude, longitude };
+        await order.save();
+
+        // Emit the updated location to clients
+        io.emit(`locationUpdate-${orderId}`, { latitude, longitude });
+
+        res.status(200).json({ message: "Location updated successfully" });
+    } catch (error) {
+        res.status(500).json({ error: "Server error" });
+    }
+});
+
+
 
 module.exports = router;

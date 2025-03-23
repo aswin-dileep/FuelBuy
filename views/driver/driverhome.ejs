@@ -21,5 +21,30 @@
     <footer>
         <p>&copy; 2025 FuelBuddy. All rights reserved.</p>
     </footer>
+
+    <script>
+        function sendLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.watchPosition((position) => {
+                    fetch("/driver/update-location", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                            orderId: "<%= assignedOrder ? assignedOrder._id : '' %>",  // Ensure `assignedOrder` is passed
+                            latitude: position.coords.latitude,
+                            longitude: position.coords.longitude
+                        })
+                    });
+                });
+            } else {
+                alert("Geolocation is not supported by this browser.");
+            }
+        }
+    
+        window.onload = sendLocation;
+    </script>
+    
+    
+    
 </body>
 </html>

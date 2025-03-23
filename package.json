@@ -21,6 +21,7 @@
     "geolib": "^3.3.4",
     "mongoose": "^8.9.6",
     "nodemon": "^3.1.9",
+    "socket.io": "^4.8.1",
     "stripe": "^17.7.0"
   }
 }

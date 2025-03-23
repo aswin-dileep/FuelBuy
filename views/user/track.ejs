@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Tracking</title>
+    
+    <!-- Google Maps API -->
+    <script async src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAJ4yvtBIxATyVzCqqlQ13tLs7wrTndENg&callback=initMap"></script>
+    
+    <!-- Socket.io for real-time updates -->
+    <script src="/socket.io/socket.io.js"></script> 
+    
+    <style>
+        #map {
+            height: 500px;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Order Tracking</h1>
+    <div id="map"></div>
+
+    <script>
+        var map;
+        var directionsService;
+        var directionsRenderer;
+        var socket = io(); // Connect to Socket.io
+        var driverMarker, destinationMarker;
+        var driverInfoWindow, destinationInfoWindow;
+
+        function initMap() {
+            // Order delivery location (Destination)
+            var orderLocation = { 
+                lat: <%= order.latitude %>, 
+                lng: <%= order.longitude %> 
+            };
+            
+            // Driver's initial location (default to fuel station)
+            var driverLocation = { 
+                lat: <%= order.fuelStationId.latitude %>, 
+                lng: <%= order.fuelStationId.longitude %> 
+            };
+
+            // Initialize Google Map
+            map = new google.maps.Map(document.getElementById('map'), {
+                center: driverLocation,
+                zoom: 14
+            });
+
+            // Initialize Directions services
+            directionsService = new google.maps.DirectionsService();
+            directionsRenderer = new google.maps.DirectionsRenderer({
+                map: map,
+                suppressMarkers: true // Hide default A/B markers
+            });
+
+            // Create a custom marker for the Driver
+            driverMarker = new google.maps.Marker({
+                position: driverLocation,
+                map: map,
+                title: "Driver",
+                icon: "http://maps.google.com/mapfiles/ms/icons/blue-dot.png"
+            });
+
+            // Create an info window (label) for the driver
+            driverInfoWindow = new google.maps.InfoWindow({
+                content: "<b>Driver</b>"
+            });
+
+            // Show label when clicking on the driver marker
+            driverMarker.addListener("click", function() {
+                driverInfoWindow.open(map, driverMarker);
+            });
+
+            // Create a custom marker for the Destination
+            destinationMarker = new google.maps.Marker({
+                position: orderLocation,
+                map: map,
+                title: "Destination",
+                icon: "http://maps.google.com/mapfiles/ms/icons/red-dot.png"
+            });
+
+            // Create an info window (label) for the destination
+            destinationInfoWindow = new google.maps.InfoWindow({
+                content: "<b>Destination</b>"
+            });
+
+            // Show label when clicking on the destination marker
+            destinationMarker.addListener("click", function() {
+                destinationInfoWindow.open(map, destinationMarker);
+            });
+
+            // Show labels by default when the map loads
+            driverInfoWindow.open(map, driverMarker);
+            destinationInfoWindow.open(map, destinationMarker);
+
+            // Draw the initial route from driver to order
+            drawRoute(driverLocation, orderLocation);
+
+            // Listen for real-time location updates
+            socket.on("updateLocation", function (data) {
+                console.log("Location received:", data);
+
+                if (data.orderId === "<%= order._id %>") { // Ensure it's for the correct order
+                    var newDriverLocation = { lat: data.latitude, lng: data.longitude };
+                    
+                    // Update marker position
+                    driverMarker.setPosition(newDriverLocation);
+                    map.setCenter(newDriverLocation);
+
+                    // Update driver label position
+                    driverInfoWindow.setPosition(newDriverLocation);
+
+                    // Redraw route
+                    drawRoute(newDriverLocation, orderLocation);
+                }
+            });
+        }
+
+        function drawRoute(start, end) {
+            var request = {
+                origin: start,
+                destination: end,
+                travelMode: google.maps.TravelMode.DRIVING
+            };
+
+            directionsService.route(request, function(result, status) {
+                if (status == google.maps.DirectionsStatus.OK) {
+                    directionsRenderer.setDirections(result);
+                }
+            });
+        }
+    </script>
+
+</body>
+</html>

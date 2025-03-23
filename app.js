@@ -2,6 +2,14 @@ const express = require('express');
 const path = require('path');
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
+const http = require("http");
+const socketIo = require("socket.io");
+require('dotenv').config();
+const stripe = require("stripe")(process.env.SECRET_STRIPE_KEY);
+const app = express() 
+
+const server = http.createServer(app);
+const io = socketIo(server);
 // routes
 const indexRouter = require("./routes/index.route");
 const adminRouter = require('./routes/admin.route');
@@ -11,11 +19,11 @@ const userRouter = require('./routes/user.route');
 const bodyParser = require('body-parser');
 const session = require('express-session');
 const MongoStore = require('connect-mongo');
-require('dotenv').config();
-const stripe = require("stripe")(process.env.SECRET_STRIPE_KEY);
+
+app.locals.GOOGLE_MAPS_API_KEY = process.env.MAPS_API_KEY;
 
 
-const app = express() 
+
 
 const PORT = process.env.PORT || 5000
 const MONGO_URL = process.env.MONGO_URL;
@@ -56,6 +64,17 @@ app.use(session({
 }));
 
 
+io.on("connection", (socket) => {
+    console.log("A user connected");
+
+    socket.on("updateLocation", (data) => {
+        io.emit(`locationUpdate-${data.orderId}`, data);
+    });
+
+    socket.on("disconnect", () => {
+        console.log("A user disconnected");
+    });
+});
 
 app.listen(PORT,()=>{
     console.log(`running in port ${PORT}`)
