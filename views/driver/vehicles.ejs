@@ -18,7 +18,12 @@
             <li><a href="/driver">Home</a></li>
             <li><a href="/driver/orders">My Orders</a></li>              
             <li><a href="/driver/vehicles" class="active">Vehicles</a></li>
-            <li><a href="#">Orders</a></li>
+            
+            <!-- Show "My Vehicle" only if the driver has occupied a vehicle -->
+            <% if (myVehicle) { %>
+                <li><a href="/driver/my-vehicle">My Vehicle</a></li>
+            <% } %>
+
             <li><a href="/logout" class="btn-danger">Logout</a></li>
         </ul>
     </div>

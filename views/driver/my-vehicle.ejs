@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Vehicle</title>
+    <link rel="stylesheet" href="/css/driver/vehicles.css">
+</head>
+<body>
+
+    <div class="main-content">
+        <h2>My Vehicle</h2>
+
+        <table>
+            <tr>
+                <th>Plate Number</th>
+                <td><%= myVehicle.plateNumber %></td>
+            </tr>
+            <tr>
+                <th>Capacity</th>
+                <td><%= myVehicle.capacity %> Liters</td>
+            </tr>
+            <tr>
+                <th>Status</th>
+                <td><%= myVehicle.status %></td>
+            </tr>
+        </table>
+
+        <!-- Release vehicle -->
+        <form action="/driver/my-vehicle/release" method="POST">
+            <button type="submit" class="release-btn">Release Vehicle</button>
+        </form>
+
+    </div>
+
+</body>
+</html>

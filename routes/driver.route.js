@@ -127,32 +127,94 @@ router.get("/vehicles", async (req, res) => {
             return res.status(401).send("Unauthorized: Please log in.");
         }
 
-        // 1. Find the driver FIRST
+        // 1. Find the driver
         const driver = await Driver.findOne({ userId: driverId });
         if (!driver) {
             console.log("❌ Driver not found for userId:", driverId);
             return res.status(404).send("Driver not found.");
         }
 
-        // 2. Then find the fuel station
+        // 2. Find the fuel station
         const fuelStation = await Fuelstations.findOne({ userId: driver.fuelStationId });
         if (!fuelStation) {
             console.log("⛽ Fuel station not found for ID:", driver.fuelStationId);
             return res.status(404).send("Associated fuel station not found.");
         }
 
-        console.log(fuelStation._id)
-
-        // 3. Find vehicles (no need for ObjectId conversion)
+        // 3. Find available vehicles
         const vehicles = await Vehicle.find({
             fuelStationId: fuelStation._id,
             status: "Available"
         });
 
-        res.render("driver/vehicles", { vehicles });
+        // 4. Find the vehicle occupied by this driver (if any)
+        const myVehicle = await Vehicle.findOne({
+            fuelStationId: fuelStation._id,
+            status: "In Use",
+            driverId: driver._id
+        });
+
+        res.render("driver/vehicles", { vehicles, myVehicle });
 
     } catch (error) {
         console.error("⚠️ Error fetching vehicles:", error);
+        res.status(500).send("Internal Server Error");
+    }
+});
+
+
+router.get("/my-vehicle", async (req, res) => {
+    try {
+        const driverId = req.session.userId;
+        if (!driverId) {
+            return res.status(401).send("Unauthorized: Please log in.");
+        }
+
+        // Find the driver and check their assigned vehicle
+        const driver = await Driver.findOne({ userId: driverId });
+        console.log(driver)
+        if (!driver) {
+            return res.redirect("/driver/vehicles"); // Redirect if no occupied vehicle
+        }
+
+        // Get vehicle details
+        const myVehicle = await Vehicle.findOne({driverId:driver});
+        if (!myVehicle) {
+            return res.redirect("/driver/vehicles"); // Redirect if vehicle is missing
+        }
+
+        res.render("driver/my-vehicle", { myVehicle });
+
+    } catch (error) {
+        console.error("Error fetching my vehicle:", error);
+        res.status(500).send("Internal Server Error");
+    }
+});
+
+router.post("/my-vehicle/release", async (req, res) => {
+    try {
+        
+        const driver = await Driver.findOne({ userId: req.session.userId });
+        if (!driver) {
+            return res.status(401).send("Unauthorized: Please log in.");
+        }
+
+        // Find the vehicle assigned to the driver
+        const myVehicle = await Vehicle.findOne({ driverId: driver._id });
+        if (!myVehicle) {
+            return res.redirect("/driver/vehicles");
+        }
+
+        // Update vehicle status to "Available" and remove driver association
+        await Vehicle.findByIdAndUpdate(myVehicle._id, { 
+            status: "Available", 
+            driverId: null // Remove driver from vehicle
+        });
+
+        res.redirect("/driver/vehicles");
+
+    } catch (error) {
+        console.error("Error releasing vehicle:", error);
         res.status(500).send("Internal Server Error");
     }
 });
@@ -184,7 +246,7 @@ router.post("/vehicles/occupy/:vehicleId", async (req, res) => {
         }
 
         // Assign vehicle to driver
-        await Vehicle.findByIdAndUpdate(vehicleId, { status: "In Use" });
+        await Vehicle.findByIdAndUpdate(vehicleId, { status: "In Use",driverId:driver._id });
 
         res.redirect("/driver/vehicles");
 
