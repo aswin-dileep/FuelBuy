@@ -2,7 +2,10 @@ const express = require('express')
 const FuelStation = require('../models/fuelstation.model');
 const Order = require('../models/order.model');
 const Fuel = require('../models/fuel.model');
+const Driver = require('../models/driver.model');
 const Payment = require('../models/payment.model');
+const Vehicle = require('../models/vehicle.model');
+const Feedback = require('../models/feedback.model');
 const router = express.Router();
 require('dotenv').config();
 const stripe = require("stripe")(process.env.SECRET_STRIPE_KEY);
@@ -397,5 +400,103 @@ router.get("/track-order/:orderId", async (req, res) => {
     }
 });
 
+router.get("/fuelstation/:id/nearby-vehicles", async (req, res) => {
+    try {
+        const fuelStationId = req.params.id;
+        console.log(fuelStationId)
+        const fs = await FuelStation.findOne({_id:fuelStationId})
+        
+        // Fetch drivers with "on Duty" status for the given fuel station
+        const drivers = await Driver.find({ fuelStationId:fs.userId, status: "on Duty" });
+
+        // Fetch their assigned vehicles
+        const driversWithVehicles = await Promise.all(
+            drivers.map(async (driver) => {
+                const vehicle = await Vehicle.findOne({ driverId: driver._id });
+                return {
+                    driver,
+                    vehicle
+                };
+            })
+        );
+
+        res.render("user/nearbyvehicles", { driversWithVehicles });
+    } catch (error) {
+        console.error("Error fetching nearby vehicles:", error);
+        res.status(500).send("Server Error");
+    }
+});
+
+// Order Page with Vehicle Capacity
+router.get("/order/vehicle", async (req, res) => {
+    let { driverId, vehicleId, maxQuantity } = req.query;
+
+    try {
+        // Validate vehicleId format
+        if (!mongoose.Types.ObjectId.isValid(vehicleId)) {
+            return res.status(400).send("Invalid vehicle ID format.");
+        }
+
+        const driver = await Driver.findById(driverId).populate("userId");
+        const vehicle = await Vehicle.findById(vehicleId);
+
+        if (!driver || !vehicle) {
+            return res.status(404).send("Driver or Vehicle not found.");
+        }
+
+        res.render("order", { driver, vehicle, maxQuantity });
+    } catch (error) {
+        console.error("Error fetching order page:", error);
+        res.status(500).send("Internal Server Error");
+    }
+});
+
+// Feedback Page Route
+router.get("/feedback/:orderId", async (req, res) => {
+    try {
+        const order = await Order.findById(req.params.orderId).populate("fuelStationId");
+
+        if (!order) {
+            return res.status(404).send("Order not found.");
+        }
+
+        res.render("user/feedback", { order });
+    } catch (error) {
+        console.error("Error loading feedback page:", error);
+        res.status(500).send("Internal Server Error");
+    }
+});
+
+// Submit Feedback
+router.post('/feedback/:orderId', async (req, res) => {
+    try {
+        const { feedback, rating } = req.body;
+        const userId = req.session.userId;
+        const { orderId } = req.params;
+
+        if (!userId) {
+            return res.status(401).send("Unauthorized: Please log in.");
+        }
+
+        // Get the order to find the fuel station ID
+        const order = await Order.findById(orderId);
+        if (!order) {
+            return res.status(404).send("Order not found.");
+        }
+
+        const newFeedback = new Feedback({
+            userId,
+            fuelStationId: order.fuelStationId,
+            feedback,
+            rating
+        });
+
+        await newFeedback.save();
+        res.redirect('/user/my-orders'); // Redirect after submission
+    } catch (error) {
+        console.error("Error submitting feedback:", error);
+        res.status(500).send("Internal Server Error");
+    }
+});
 
 module.exports = router;

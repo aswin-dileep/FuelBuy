@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Fuel with Vehicle</title>
+    <link rel="stylesheet" href="/css/user/order.css">
+    <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_GOOGLE_MAPS_API_KEY&libraries=places"></script>
+    <script src="https://js.stripe.com/v3/"></script>
+</head>
+<body>
+
+    <%- include('header.ejs') %>
+
+    <div class="container">
+        <h2>Order Fuel (Vehicle Delivery)</h2>
+
+        <form id="order-form">
+            <p><strong>Driver:</strong> <%= driver.userId.name %></p>
+            <p><strong>Vehicle ID:</strong> <%= vehicle._id %></p>
+            <p><strong>Fuel Capacity:</strong> <%= maxQuantity %> Liters</p>
+
+            <input type="hidden" id="driverId" name="driverId" value="<%= driver._id %>">
+            <input type="hidden" id="vehicleId" name="vehicleId" value="<%= vehicle._id %>">
+
+            <label for="quantity">Quantity (Liters):</label>
+            <input type="number" id="quantity" name="quantity" min="1" max="<%= maxQuantity %>" required oninput="calculateTotalPrice()">
+
+            <label for="totalPrice">Total Price:</label>
+            <input type="text" id="totalPrice" name="totalPrice" readonly>
+
+            <label>Delivery Address (Auto-Detected):</label>
+            <input type="text" id="location-address" name="locationAddress" readonly>
+
+            <!-- Hidden inputs for Latitude and Longitude -->
+            <input type="hidden" id="latitude" name="latitude">
+            <input type="hidden" id="longitude" name="longitude">
+
+            <label for="date">Preferred Delivery Date:</label>
+            <input type="date" id="date" name="date" required>
+
+            <label for="time">Preferred Delivery Time:</label>
+            <input type="time" id="time" required>
+
+            <button type="button" class="btn-submit" id="checkout-button">Proceed to Payment</button>
+        </form>
+    </div>
+
+    <footer>
+        <p>&copy; 2025 FuelBuddy. All rights reserved.</p>
+    </footer>
+
+    <script>
+        const stripe = Stripe("YOUR_STRIPE_PUBLIC_KEY");
+
+        function calculateTotalPrice() {
+            const quantity = document.getElementById('quantity').value;
+            const fuelPrice = 50; // Example: Set fuel price per liter
+            const totalPrice = quantity * fuelPrice;
+            document.getElementById('totalPrice').value = totalPrice.toFixed(2);
+        }
+
+        function getCurrentLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    function(position) {
+                        const lat = position.coords.latitude;
+                        const lng = position.coords.longitude;
+                        document.getElementById('latitude').value = lat;
+                        document.getElementById('longitude').value = lng;
+
+                        const geocoder = new google.maps.Geocoder();
+                        const latlng = new google.maps.LatLng(lat, lng);
+
+                        geocoder.geocode({ location: latlng }, function(results, status) {
+                            if (status === "OK") {
+                                if (results[0]) {
+                                    document.getElementById("location-address").value = results[0].formatted_address;
+                                } else {
+                                    alert("No address found.");
+                                }
+                            } else {
+                                alert("Geocoder failed due to: " + status);
+                            }
+                        });
+                    },
+                    function(error) {
+                        alert("Geolocation failed: " + error.message);
+                    }
+                );
+            } else {
+                alert("Geolocation is not supported by this browser.");
+            }
+        }
+
+        // Get location when page loads
+        window.onload = getCurrentLocation;
+
+        document.getElementById("checkout-button").addEventListener("click", async function () {
+            const driverId = document.getElementById("driverId").value;
+            const vehicleId = document.getElementById("vehicleId").value;
+            const quantity = document.getElementById("quantity").value;
+            const totalPrice = document.getElementById("totalPrice").value;
+            const locationAddress = document.getElementById("location-address").value;
+            const latitude = document.getElementById("latitude").value;
+            const longitude = document.getElementById("longitude").value;
+            const date = document.getElementById("date").value;
+            const time = document.getElementById("time").value;
+            const customer = "<%= session.userId %>";
+
+            const response = await fetch("/user/create-checkout-session", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    driverId,
+                    vehicleId,
+                    quantity,
+                    totalPrice,
+                    locationAddress,
+                    latitude,
+                    longitude,
+                    date,
+                    time,
+                    customer
+                })
+            });
+
+            const session = await response.json();
+            stripe.redirectToCheckout({ sessionId: session.id });
+        });
+    </script>
+
+</body>
+</html>

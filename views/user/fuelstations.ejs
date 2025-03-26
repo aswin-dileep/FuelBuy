@@ -65,7 +65,8 @@
                         <h3><%= station.userId.name %></h3>
                         <p><strong>Distance:</strong> <%= station.distance %> km</p>
                         <a href="/user/fuelstation/<%= station._id %>/fuels" class="btn-order">View</a>
-                        
+                        <a href="/user/fuelstation/<%= station._id %>/nearby-vehicles" style="background-color: blue;" class="btn-order">Nearby Vehicle</a>
+
                     </div>
                 <% }) %>
             <% } %>

@@ -4,6 +4,7 @@ const Driver = require('../models/driver.model');
 const Order = require('../models/order.model');
 const Fuelstations = require('../models/fuelstation.model');
 const Vehicle = require("../models/vehicle.model");
+const Feedback = require("../models/feedback.model");
 const Fuel = require('../models/fuel.model');
 const bcrypt = require('bcrypt');
 const FuelStation = require('../models/fuelstation.model');
@@ -424,6 +425,27 @@ router.post("/vehicles/add", isFuelStation, async (req, res) => {
     } catch (error) {
         console.error(error);
         res.status(500).send("Error adding vehicle");
+    }
+});
+
+router.get('/feedbacks', async (req, res) => {
+    try {
+        
+        const fuelstation = await FuelStation.findOne({userId:req.session.userId});
+        const fuelStationId = fuelstation._id;
+        if (!fuelStationId) {
+            return res.status(401).send("Unauthorized: Please log in.");
+        }
+
+        const feedbacks = await Feedback.find({ fuelStationId })
+            .populate('userId', 'name') // Get customer names
+            .sort({ _id: -1 }); // Show latest first
+
+        res.render('fuelstation/feedbacks', { feedbacks });
+
+    } catch (error) {
+        console.error("Error fetching feedbacks:", error);
+        res.status(500).send("Internal Server Error");
     }
 });
 

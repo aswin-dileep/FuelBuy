@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customer Feedbacks</title>
+    <link rel="stylesheet" href="/css/fuelstation/feedbacks.css">
+</head>
+<body>
+
+    <%- include('sidebar.ejs') %>
+
+    <div class="container">
+        <h2>Customer Feedbacks</h2>
+
+        <% if (feedbacks.length > 0) { %>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Customer</th>
+                        <th>Feedback</th>
+                        <th>Rating</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% feedbacks.forEach(feedback => { %>
+                        <tr>
+                            <td><%= feedback.userId.name %></td>
+                            <td><%= feedback.feedback %></td>
+                            <td>
+                                <% for (let i = 0; i < feedback.rating; i++) { %>
+                                    ★
+                                <% } %>
+                            </td>
+                        </tr>
+                    <% }) %>
+                </tbody>
+            </table>
+        <% } else { %>
+            <p>No feedbacks available.</p>
+        <% } %>
+    </div>
+
+</body>
+</html>

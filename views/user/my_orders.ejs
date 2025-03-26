@@ -34,13 +34,21 @@
                             <td><%= order.quantity %></td>
                             <td><%= order.status || "Pending" %></td>
                             <td>
-                                <a  href="/user/order-details/<%= order._id %>">
+                                <a href="/user/order-details/<%= order._id %>">
                                     <button style="background-color: blue; color: white;">View</button>
                                 </a>
                             </td>
-                            <td><a href="/user/track-order/<%= order._id %>">
-                                <button style="background-color: green; color: white;">Track</button>
-                            </a></td>
+                            <td>
+                                <% if (order.status === "Delivered") { %>
+                                    <a href="/user/feedback/<%= order._id %>">
+                                        <button style="background-color: orange; color: white;">Give Feedback</button>
+                                    </a>
+                                <% } else { %>
+                                    <a href="/user/track-order/<%= order._id %>">
+                                        <button style="background-color: green; color: white;">Track</button>
+                                    </a>
+                                <% } %>
+                            </td>
                         </tr>
                     <% }) %>
                 </tbody>

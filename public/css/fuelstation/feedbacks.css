@@ -1,0 +1,153 @@
+/* Global Styles */
+:root {
+    --primary-color: #4CAF50;
+    --secondary-color: #1a1a1a;
+    --accent-color: #2c2c2c;
+    --text-color: #ffffff;
+    --danger-color: #dc3545;
+}
+
+body {
+    background-color: #121212;
+    color: var(--text-color);
+    display: flex;
+    min-height: 100vh;
+    margin: 0;
+}
+
+/* Sidebar */
+.sidebar {
+    width: 230px;
+    background-color: var(--secondary-color);
+    padding: 20px;
+    position: fixed;
+    height: 100%;
+    overflow-y: auto;
+}
+
+.sidebar-header {
+    padding: 20px 0;
+    border-bottom: 1px solid #333;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.sidebar-header .fuel {
+    font-size: 1.5rem;
+    color: var(--primary-color);
+    font-weight: bold;
+}
+
+.nav-links {
+    list-style: none;
+    padding: 0;
+}
+
+.nav-links li {
+    margin: 10px 0;
+}
+
+.nav-links li a {
+    display: flex;
+    align-items: center;
+    padding: 12px;
+    color: var(--text-color);
+    text-decoration: none;
+    border-radius: 5px;
+    transition: all 0.3s ease;
+}
+
+.nav-links li a:hover {
+    background-color: var(--accent-color);
+}
+
+.nav-links li a.active {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.nav-links ion-icon {
+    margin-right: 10px;
+    font-size: 1.2rem;
+}
+
+/* Main Content */
+.main-content {
+    margin-left: 250px;
+    padding: 30px;
+    width: calc(100% - 250px);
+}
+
+/* Feedback Container */
+.container {
+    max-width: 900px;
+    min-width: 600px;
+    margin:50px  300px;
+    padding: 20px;
+    background: var(--secondary-color);
+    border-radius: 8px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Title */
+h2 {
+    text-align: center;
+    color: var(--primary-color);
+    margin-bottom: 20px;
+}
+
+/* Table Styling */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    background: var(--accent-color);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+th, td {
+    padding: 12px;
+    border: 1px solid #333;
+    text-align: center;
+}
+
+th {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+td {
+    background-color: var(--secondary-color);
+}
+
+td:nth-child(3) {
+    font-size: 18px;
+    color: gold;
+}
+
+/* Logout Section */
+.logout-section {
+    position: absolute;
+    bottom: 20px;
+    width: calc(100% - 40px);
+}
+
+.btn-danger {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    padding: 15px;
+    background-color: var(--danger-color);
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    text-align: center;
+    justify-content: center;
+}
+
+.btn-danger ion-icon {
+    margin-right: 10px;
+    font-size: 1.2rem;
+}

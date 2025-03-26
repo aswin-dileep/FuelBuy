@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nearby Vehicles</title>
+    <link rel="stylesheet" href="/css/user/nearbyvehicles.css">
+</head>
+<body>
+
+    <%- include('header.ejs') %>
+
+    <div class="container">
+        <h2>Nearby Vehicles</h2>
+
+        <% if (driversWithVehicles.length === 0) { %>
+            <p>No vehicles are currently available.</p>
+        <% } else { %>
+            <div class="vehicles-grid">
+                <% driversWithVehicles.forEach(({ driver, vehicle }) => { %>
+                    <div class="vehicle-card">
+                        <h3>Driver: <%= driver.userId.name %></h3>
+                        <p><strong>Status:</strong> <%= driver.status %></p>
+                        <% if (vehicle) { %>
+                            <p><strong>Fuel Quantity:</strong> <%= vehicle.currentCapacity %> Liters</p>
+                        <% } else { %>
+                            <p><strong>Vehicle:</strong> Not Assigned</p>
+                        <% } %>
+                    </div>
+                    <form action="/user/order/vehicle" method="GET">
+                        <input type="hidden" name="driverId" value="<%= driver._id %>">
+                        <input type="hidden" name="vehicleId" value="<%= vehicle._id %>">
+                        <input type="hidden" name="maxQuantity" value="<%= vehicle.currentCapacity %>">
+                        <button type="submit" class="btn-order">Order with Vehicle</button>
+                    </form>
+                <% }) %>
+                
+            </div>
+        <% } %>
+    </div>
+
+    <footer>
+        <p>&copy; 2025 FuelBuddy. All rights reserved.</p>
+    </footer>
+
+</body>
+</html>

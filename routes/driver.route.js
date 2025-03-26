@@ -240,21 +240,23 @@ router.post("/vehicles/occupy/:vehicleId", async (req, res) => {
             return res.status(401).send("Unauthorized: Please log in.");
         }
 
-        // Check if the driver is already using a vehicle
+        // Find the driver
         const driver = await Driver.findOne({ userId: driverId });
 
         if (!driver) {
             return res.status(404).send("Driver not found.");
         }
 
+        // Check if the driver is already using a vehicle
         const assignedVehicle = await Vehicle.findOne({ fuelStationId: driver.fuelStationId, status: "In Use" });
 
         if (assignedVehicle) {
             return res.status(400).send("You are already assigned to a vehicle.");
         }
 
-        // Assign vehicle to driver
-        await Vehicle.findByIdAndUpdate(vehicleId, { status: "In Use",driverId:driver._id });
+        // Assign vehicle to driver and update driver status
+        await Vehicle.findByIdAndUpdate(vehicleId, { status: "In Use", driverId: driver._id });
+        await Driver.findByIdAndUpdate(driver._id, { status: "on Duty" }); // Change driver status
 
         res.redirect("/driver/vehicles");
 
@@ -263,6 +265,7 @@ router.post("/vehicles/occupy/:vehicleId", async (req, res) => {
         res.status(500).send("Internal Server Error");
     }
 });
+
 
 router.post("/update-location", async (req, res) => {
     const { orderId, latitude, longitude } = req.body;
