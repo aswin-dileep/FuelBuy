@@ -6,6 +6,8 @@ const Driver = require('../models/driver.model');
 const Payment = require('../models/payment.model');
 const Vehicle = require('../models/vehicle.model');
 const Feedback = require('../models/feedback.model');
+const User = require("../models/user.model");
+const mongoose = require('mongoose')
 const router = express.Router();
 require('dotenv').config();
 const stripe = require("stripe")(process.env.SECRET_STRIPE_KEY);
@@ -428,25 +430,36 @@ router.get("/fuelstation/:id/nearby-vehicles", async (req, res) => {
 });
 
 // Order Page with Vehicle Capacity
-router.get("/order/vehicle", async (req, res) => {
-    let { driverId, vehicleId, maxQuantity } = req.query;
-
+router.post("/order/vehicle", async (req, res) => {
     try {
-        // Validate vehicleId format
-        if (!mongoose.Types.ObjectId.isValid(vehicleId)) {
-            return res.status(400).send("Invalid vehicle ID format.");
+        const { driverId, vehicleId, maxQuantity } = req.body;
+        const userId = req.session.userId; // Ensure user is logged in
+
+        if (!userId) return res.redirect("/login");
+        if (!mongoose.Types.ObjectId.isValid(driverId) || !mongoose.Types.ObjectId.isValid(vehicleId)) {
+            return res.status(400).send("Invalid driver or vehicle ID.");
         }
 
+        const user = await User.findById(userId);
         const driver = await Driver.findById(driverId).populate("userId");
         const vehicle = await Vehicle.findById(vehicleId);
+        const fuelStation = await FuelStation.findOne(); // Adjust as needed
+        const fuel = await Fuel.findOne(); // Modify based on availability
 
-        if (!driver || !vehicle) {
-            return res.status(404).send("Driver or Vehicle not found.");
+        if (!driver || !vehicle || !fuelStation || !fuel) {
+            return res.status(404).send("Required data not found.");
         }
 
-        res.render("order", { driver, vehicle, maxQuantity });
+        res.render("user/nearbyorder", {
+            user,
+            fuelStation,
+            driver,
+            vehicle,
+            fuel,
+            maxQuantity,
+        });
     } catch (error) {
-        console.error("Error fetching order page:", error);
+        console.error("Error processing order:", error);
         res.status(500).send("Internal Server Error");
     }
 });

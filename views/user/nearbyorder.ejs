@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nearby Order</title>
+    <link rel="stylesheet" href="/css/user/nearbyorder.css">
+    <script>
+        function getCurrentLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    function (position) {
+                        document.getElementById("latitude").value = position.coords.latitude;
+                        document.getElementById("longitude").value = position.coords.longitude;
+
+                        fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${position.coords.latitude}&lon=${position.coords.longitude}`)
+                            .then(response => response.json())
+                            .then(data => {
+                                document.getElementById("locationAddress").value = data.display_name;
+                            })
+                            .catch(error => console.error("Error fetching location address:", error));
+                    },
+                    function (error) {
+                        alert("Error fetching location: " + error.message);
+                    }
+                );
+            } else {
+                alert("Geolocation is not supported by this browser.");
+            }
+        }
+
+        function calculateTotal() {
+            let quantity = document.getElementById("quantity").value;
+            let pricePerLiter = 50; // Example price
+            document.getElementById("totalPrice").value = quantity * pricePerLiter;
+        }
+    </script>
+</head>
+<body onload="getCurrentLocation()">
+
+<header>
+    <nav class="navbar">
+        <div class="logo">
+            <span class="fuel">Customer</span>
+            <p>Doorstep Fuel Delivery</p>
+        </div>
+        <ul class="nav-links">
+            <li><a href="/user">Home</a></li>
+            <li><a href="/user/fuelstations">Fuel Stations</a></li>              
+            <li><a href="/user/my-orders">My Orders</a></li>
+            <li><a href="#">Profile</a></li>
+            <li><a href="/" class="btn-danger">Logout</a></li>
+        </ul>
+    </nav>
+</header>
+
+<div class="container">
+    <h2>Place Nearby Order</h2>
+
+    <form action="/user/order/nearby" method="POST">
+        <input type="hidden" name="userId" value="<%= user._id %>">
+        <input type="hidden" name="fuelStationId" value="<%= fuelStation._id %>">
+        <input type="hidden" name="driverId" value="<%= driver._id %>">
+        <input type="hidden" name="fuelId" value="<%= fuel ? fuel._id : '' %>">
+        <input type="hidden" name="vehicleId" value="<%= vehicle ? vehicle._id : '' %>">
+
+        <label>Fuel Station:</label>
+        <input type="text" value="<%= fuelStation.name %>" disabled>
+
+        <label>Assigned Driver:</label>
+        <input type="text" value="<%= driver.userId.name %>" disabled>
+
+        <label>Vehicle (if assigned):</label>
+        <input type="text" value="<%= vehicle ? vehicle.currentCapacity + ' Liters' : 'No Vehicle' %>" disabled>
+
+        <label>Fuel Type:</label>
+        <input type="text" value="<%= fuel.name %>" disabled>
+
+        <label>Quantity (Liters):</label>
+        <input type="number" name="quantity" id="quantity" required min="1" max="<%= vehicle ? vehicle.currentCapacity : 100 %>" onchange="calculateTotal()">
+
+        <label>Total Price:</label>
+        <input type="text" name="totalPrice" id="totalPrice" readonly>
+
+        <label>Delivery Location:</label>
+        <input type="text" id="locationAddress" name="locationAddress" required readonly>
+
+        <input type="hidden" id="latitude" name="latitude">
+        <input type="hidden" id="longitude" name="longitude">
+
+        <button type="submit">Confirm Order</button>
+    </form>
+</div>
+
+</body>
+</html>

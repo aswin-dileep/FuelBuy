@@ -27,7 +27,7 @@
                             <p><strong>Vehicle:</strong> Not Assigned</p>
                         <% } %>
                     </div>
-                    <form action="/user/order/vehicle" method="GET">
+                    <form action="/user/order/vehicle" method="POST">
                         <input type="hidden" name="driverId" value="<%= driver._id %>">
                         <input type="hidden" name="vehicleId" value="<%= vehicle._id %>">
                         <input type="hidden" name="maxQuantity" value="<%= vehicle.currentCapacity %>">
