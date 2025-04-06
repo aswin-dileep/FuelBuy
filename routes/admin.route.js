@@ -7,11 +7,11 @@ const router = express.Router();
 
 router.get('/',(req,res)=>{
     res.render('admin/adminhome');
-})
+});
 
 router.get('/fuel_reg',(req,res)=>{
     res.render('admin/add_fuelstation')
-})
+});
 
 router.post("/fuel_reg", async (req, res) => {
     try {
@@ -106,16 +106,45 @@ router.get('/fuelstations', async (req, res) => {
     }
 });
 
+router.get('/fuelstations/:id/edit', async (req, res) => {
+    const station = await FuelStation.findById(req.params.id).populate('userId');
+    if (!station) return res.status(404).send('Fuel station not found');
 
-router.post('/users/:id/delete', async (req, res) => {
-    try {
-        await Users.findByIdAndDelete(req.params.id);
-        res.redirect('/fuelstations'); // Redirect to users list after deleting
-    } catch (err) {
-        console.error(err);
-        res.status(500).send("Server Error");
-    }
+    res.render('admin/edit_fuelstation', { station });
 });
+
+// POST: Update fuel station
+router.post('/fuelstations/:id/edit', async (req, res) => {
+    const { name, email, phone, location } = req.body;
+
+    const station = await FuelStation.findById(req.params.id).populate('userId');
+    if (!station) return res.status(404).send('Fuel station not found');
+
+    // Update user details
+    const user = station.userId;
+    user.name = name;
+    user.email = email;
+    user.phone = phone;
+    await user.save();
+
+    // Update station location
+    station.location = location;
+    await station.save();
+
+    res.redirect('/admin/fuelstations');
+});
+
+
+router.post('/admin/fuelstations/:id/delete', async (req, res) => {
+    const station = await FuelStation.findById(req.params.id);
+    if (!station) return res.status(404).send('Fuel station not found');
+
+    await User.findByIdAndDelete(station.userId); // Optional if you want to delete the linked user
+    await FuelStation.findByIdAndDelete(req.params.id);
+
+    res.redirect('/admin/fuelstations');
+});
+
 
 
 

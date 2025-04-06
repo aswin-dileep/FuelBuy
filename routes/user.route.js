@@ -8,12 +8,13 @@ const Vehicle = require('../models/vehicle.model');
 const Feedback = require('../models/feedback.model');
 const User = require("../models/user.model");
 const mongoose = require('mongoose')
+const bcrypt = require('bcrypt');
 const router = express.Router();
 require('dotenv').config();
 const stripe = require("stripe")(process.env.SECRET_STRIPE_KEY);
 
-router.get('/',(req,res)=>{
-    res.render('user/userhome',{session:req.session});
+router.get('/', (req, res) => {
+    res.render('user/userhome', { session: req.session });
 })
 // Haversine formula to calculate distance between two coordinates
 function getDistance(lat1, lon1, lat2, lon2) {
@@ -24,8 +25,8 @@ function getDistance(lat1, lon1, lat2, lon2) {
     const dLon = toRad(lon2 - lon1);
 
     const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-              Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
-              Math.sin(dLon / 2) * Math.sin(dLon / 2);
+        Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
+        Math.sin(dLon / 2) * Math.sin(dLon / 2);
 
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 
@@ -34,8 +35,12 @@ function getDistance(lat1, lon1, lat2, lon2) {
 
 router.get('/fuelstations', async (req, res) => {
     try {
+        console.log("Query Params: ", req.query); // ✅ Debugging
+
         const userLat = req.query.lat ? parseFloat(req.query.lat) : null;
         const userLng = req.query.lng ? parseFloat(req.query.lng) : null;
+
+        console.log("Extracted Lat: ", userLat, "Lng: ", userLng); // ✅ Debugging
 
         if (!userLat || !userLng) {
             console.log("User location not provided");
@@ -44,7 +49,6 @@ router.get('/fuelstations', async (req, res) => {
 
         const fuelStations = await FuelStation.find({}, 'location latitude longitude').populate('userId');
 
-        // Calculate distance and filter only nearby fuel stations (e.g., within 50 km)
         let nearbyStations = fuelStations.map(station => {
             if (station.latitude && station.longitude) {
                 station = station.toObject();
@@ -55,7 +59,6 @@ router.get('/fuelstations', async (req, res) => {
             return station;
         });
 
-        // Sort by closest and filter within 50 km
         nearbyStations = nearbyStations
             .filter(station => station.distance !== "N/A" && station.distance <= 100)
             .sort((a, b) => a.distance - b.distance);
@@ -66,6 +69,7 @@ router.get('/fuelstations', async (req, res) => {
         res.status(500).send("Server Error");
     }
 });
+
 
 router.get('/fuelstation/:id/fuels', async (req, res) => {
     try {
@@ -99,7 +103,7 @@ router.get("/my-orders", async (req, res) => {
         // Ensure page and limit are positive numbers
         if (page < 1) page = 1;
         if (limit < 1) limit = 5;
-        
+
         const skip = (page - 1) * limit;
 
         // 🔹 Get total order count
@@ -124,11 +128,11 @@ router.get("/my-orders", async (req, res) => {
             .skip(skip)
             .limit(limit);
 
-        res.render("user/my_orders", { 
-            orders, 
-            currentPage: page, 
-            totalPages, 
-            limit 
+        res.render("user/my_orders", {
+            orders,
+            currentPage: page,
+            totalPages,
+            limit
         });
 
     } catch (error) {
@@ -169,10 +173,10 @@ router.get('/order/:fuelId', async (req, res) => {
     try {
         const fuelId = req.params.fuelId;
         const fuel = await Fuel.findById(fuelId)
-    .populate({
-        path: "fuelStationId",
-        populate: { path: "userId" } // Ensure userId is populated within fuelStationId
-    });
+            .populate({
+                path: "fuelStationId",
+                populate: { path: "userId" } // Ensure userId is populated within fuelStationId
+            });
 
         if (!fuel) {
             return res.status(404).send("Fuel not found");
@@ -406,10 +410,10 @@ router.get("/fuelstation/:id/nearby-vehicles", async (req, res) => {
     try {
         const fuelStationId = req.params.id;
         console.log(fuelStationId)
-        const fs = await FuelStation.findOne({_id:fuelStationId})
-        
+        const fs = await FuelStation.findOne({ _id: fuelStationId })
+
         // Fetch drivers with "on Duty" status for the given fuel station
-        const drivers = await Driver.find({ fuelStationId:fs.userId, status: "on Duty" });
+        const drivers = await Driver.find({ fuelStationId: fs.userId, status: "on Duty" });
 
         // Fetch their assigned vehicles
         const driversWithVehicles = await Promise.all(
@@ -443,7 +447,7 @@ router.post("/order/vehicle", async (req, res) => {
         const user = await User.findById(userId);
         const driver = await Driver.findById(driverId).populate("userId");
         const vehicle = await Vehicle.findById(vehicleId);
-        const fuelStation = await FuelStation.findOne(); // Adjust as needed
+        const fuelStation = await FuelStation.findOne().populate("userId"); // Adjust as needed
         const fuel = await Fuel.findOne(); // Modify based on availability
 
         if (!driver || !vehicle || !fuelStation || !fuel) {
@@ -509,6 +513,102 @@ router.post('/feedback/:orderId', async (req, res) => {
     } catch (error) {
         console.error("Error submitting feedback:", error);
         res.status(500).send("Internal Server Error");
+    }
+});
+
+//payment section for nearby order
+router.post('/payment', async (req, res) => {
+    try {
+        const { userId, fuelStationId, driverId, fuelId, vehicleId, quantity, totalPrice, latitude, longitude, locationAddress, customerName, customerEmail } = req.body;
+
+        // Create a Stripe Checkout session
+        const session = await stripe.checkout.sessions.create({
+            payment_method_types: ['card'],
+            line_items: [
+                {
+                    price_data: {
+                        currency: 'inr',
+                        product_data: {
+                            name: 'Fuel Order',
+                            description: `Fuel Order from ${locationAddress}`,
+                        },
+                        unit_amount: totalPrice * 100, // Convert to cents
+                    },
+                    quantity: 1,
+                },
+            ],
+            mode: 'payment',
+            customer_email: customerEmail, // ✅ Include customer email
+            billing_address_collection: "required", // ✅ Require billing address
+            success_url: `http://localhost:5000/user/payment/success?userId=${userId}&fuelStationId=${fuelStationId}&driverId=${driverId}&fuelId=${fuelId}&vehicleId=${vehicleId}&quantity=${quantity}&totalPrice=${totalPrice}&latitude=${latitude}&longitude=${longitude}&locationAddress=${encodeURIComponent(locationAddress)}`,
+            cancel_url: 'http://localhost:5000/user/payment/cancel',
+        });
+
+        res.redirect(session.url); // Redirect user to Stripe payment page
+    } catch (error) {
+        console.error('Payment error:', error);
+        res.status(500).send('Payment failed.');
+    }
+});
+
+
+router.get('/payment/success', async (req, res) => {
+    try {
+        const { userId, fuelStationId, driverId, fuelId, vehicleId, quantity, totalPrice, latitude, longitude, locationAddress } = req.query;
+
+        // Create a new order in the database
+        const newOrder = new Order({
+            userId,
+            fuelStationId,
+            assignedDriver: driverId,
+            fuelId,
+            vehicleId,
+            addressType: "location",
+            quantity,
+            totalPrice,
+            latitude,
+            date: new Date().toISOString().split('T')[0],
+            longitude,
+            locationAddress,
+            status: 'Assigned',
+        });
+
+        await newOrder.save();
+
+        res.redirect('/user/my-orders');
+    } catch (error) {
+        console.error('Order creation error:', error);
+        res.status(500).send('Order creation failed.');
+    }
+});
+
+
+router.get('/profile', async (req, res) => {
+    try {
+        const user = await User.findById(req.session.userId); // Assuming you're storing userId in session
+        res.render('user/profile', { user });
+    } catch (err) {
+        console.error(err);
+        res.status(500).send("Server error");
+    }
+});
+
+router.post('/profile/edit', async (req, res) => {
+    try {
+        const { name, phone, password } = req.body;
+        const updateData = { name, phone };
+
+        // If user entered a new password, hash and include it
+        if (password && password.trim() !== '') {
+            const hashedPassword = await bcrypt.hash(password, 10);
+            updateData.password = hashedPassword;
+        }
+
+        await User.findByIdAndUpdate(req.session.userId, updateData);
+        res.redirect('/user/profile');
+    } catch (err) {
+        console.error(err);
+        res.status(500).send("Update failed");
     }
 });
 

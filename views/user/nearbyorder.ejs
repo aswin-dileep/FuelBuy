@@ -57,7 +57,7 @@
 <div class="container">
     <h2>Place Nearby Order</h2>
 
-    <form action="/user/order/nearby" method="POST">
+    <form action="/user/payment" method="POST">
         <input type="hidden" name="userId" value="<%= user._id %>">
         <input type="hidden" name="fuelStationId" value="<%= fuelStation._id %>">
         <input type="hidden" name="driverId" value="<%= driver._id %>">
@@ -65,16 +65,16 @@
         <input type="hidden" name="vehicleId" value="<%= vehicle ? vehicle._id : '' %>">
 
         <label>Fuel Station:</label>
-        <input type="text" value="<%= fuelStation.name %>" disabled>
+        <input type="text" value="<%= fuelStation.userId.name %>" disabled>
 
-        <label>Assigned Driver:</label>
-        <input type="text" value="<%= driver.userId.name %>" disabled>
-
-        <label>Vehicle (if assigned):</label>
+        <label>Vehicle quantity:</label>
         <input type="text" value="<%= vehicle ? vehicle.currentCapacity + ' Liters' : 'No Vehicle' %>" disabled>
 
         <label>Fuel Type:</label>
-        <input type="text" value="<%= fuel.name %>" disabled>
+        <input type="text" value="<%= fuel.type %>" disabled>
+
+        <label>Fuel Price:</label>
+        <input type="text" value="<%= fuel.price %>" disabled>
 
         <label>Quantity (Liters):</label>
         <input type="number" name="quantity" id="quantity" required min="1" max="<%= vehicle ? vehicle.currentCapacity : 100 %>" onchange="calculateTotal()">

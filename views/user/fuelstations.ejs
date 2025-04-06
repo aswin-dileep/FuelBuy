@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -12,34 +13,41 @@
                     function (position) {
                         let userLat = position.coords.latitude;
                         let userLng = position.coords.longitude;
-    
+
                         // Store location in sessionStorage
                         sessionStorage.setItem("userLat", userLat);
                         sessionStorage.setItem("userLng", userLng);
-    
-                        // Redirect with query parameters only if they're not in the URL
+
+                        // Redirect only if lat/lng are not in URL
                         if (!window.location.search.includes("lat")) {
-                            window.location.href = `/user/fuelstations?lat=${userLat}&lng=${userLng}`;
+                            window.location.replace(`/user/fuelstations?lat=${userLat}&lng=${userLng}`);
                         }
                     },
                     function (error) {
                         console.error("Error getting location: ", error);
-                        alert("Unable to fetch location. Please enable location services.");
-                    }
+                        alert("Unable to fetch accurate location. Please enable location services.");
+                    },
+                    { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 } // ✅ Force high accuracy
                 );
             } else {
                 alert("Geolocation is not supported by this browser.");
             }
         }
-    
+
+
+
+
+
         // Check if we already have lat/lng stored
         window.onload = function () {
             let storedLat = sessionStorage.getItem("userLat");
             let storedLng = sessionStorage.getItem("userLng");
-    
+
+            console.log("Stored Lat: ", storedLat, "Stored Lng: ", storedLng); // ✅ Debugging
+
             if (storedLat && storedLng) {
-                // Redirect if location is stored but not in URL
                 if (!window.location.search.includes("lat")) {
+                    console.log("Redirecting to: ", `/user/fuelstations?lat=${storedLat}&lng=${storedLng}`); // ✅ Debugging
                     window.location.href = `/user/fuelstations?lat=${storedLat}&lng=${storedLng}`;
                 }
             } else {
@@ -48,34 +56,41 @@
         };
     </script>
 </head>
+
 <body>
 
     <%- include('header.ejs') %>
 
-    <div class="container">
-        <h2>Nearby Fuel Stations</h2>
+        <div class="container">
+            <h2>Nearby Fuel Stations</h2>
 
-        <div class="stations-grid">
-            <% if (stations.length === 0) { %>
-                <p>No fuel stations found within 50 km.</p>
-            <% } else { %>
-                <% stations.forEach((station) => { %>
-                    <div class="station-card">
-                        <img src="/img/fuelstation.png" alt="Fuel Station" class="station-image">
-                        <h3><%= station.userId.name %></h3>
-                        <p><strong>Distance:</strong> <%= station.distance %> km</p>
-                        <a href="/user/fuelstation/<%= station._id %>/fuels" class="btn-order">View</a>
-                        <a href="/user/fuelstation/<%= station._id %>/nearby-vehicles" style="background-color: blue;" class="btn-order">Nearby Vehicle</a>
+            <div class="stations-grid">
+                <% if (stations.length===0) { %>
+                    <p>No fuel stations found within 50 km.</p>
+                    <% } else { %>
+                        <% stations.forEach((station)=> { %>
+                            <div class="station-card">
+                                <img src="/img/fuelstation.png" alt="Fuel Station" class="station-image">
+                                <h3>
+                                    <%= station.userId.name %>
+                                </h3>
+                                <p><strong>Distance:</strong>
+                                    <%= station.distance %> km
+                                </p>
+                                <a href="/user/fuelstation/<%= station._id %>/fuels" class="btn-order">View</a>
+                                <a href="/user/fuelstation/<%= station._id %>/nearby-vehicles"
+                                    style="background-color: blue;" class="btn-order">Nearby Vehicle</a>
 
-                    </div>
-                <% }) %>
-            <% } %>
+                            </div>
+                            <% }) %>
+                                <% } %>
+            </div>
         </div>
-    </div>
 
-    <footer>
-        <p>&copy; 2025 FuelBuddy. All rights reserved.</p>
-    </footer>
+        <footer>
+            <p>&copy; 2025 FuelBuddy. All rights reserved.</p>
+        </footer>
 
 </body>
+
 </html>

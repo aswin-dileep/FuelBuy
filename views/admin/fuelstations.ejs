@@ -45,8 +45,13 @@
                         <td><%= station.userId.phone %></td>
                         <td><%= station.location %></td>
                         <td>
-                            <button class="btn-edit"> <a href="/admin/users/<%= station._id %>" style="text-decoration: none; color: aliceblue;"> Edit </a> </button>
-                            <form action="/admin/users/<%= station._id %>/delete" method="POST" style="display:inline;">
+                            <!-- EDIT Button -->
+                            <button class="btn-edit">
+                                <a href="/admin/fuelstations/<%= station._id %>/edit" style="text-decoration: none; color: white;">Edit</a>
+                            </button>
+                        
+                            <!-- DELETE Button -->
+                            <form action="/admin/fuelstations/<%= station._id %>/delete" method="POST" style="display:inline;">
                                 <button class="btn-delete" type="submit">Delete</button>
                             </form>                      
                         </td>

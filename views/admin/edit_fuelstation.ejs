@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Edit Fuel Station</title>
+    <link rel="stylesheet" href="/css/Admin/edit_fuelstation.css">
+</head>
+<body>
+
+<!-- Navbar -->
+<header>
+    <nav class="navbar">
+        <div class="logo">
+            <span class="fuel">Admin panel</span>
+            <p>Doorstep Fuel Delivery</p>
+        </div>
+        <ul class="nav-links">
+            <li><a href="#" class="/admin">Home</a></li>
+            <li><a href="/admin/fuel_reg">Add FuelStations</a></li>              
+            <li><a href="/admin/fuelstations">Fuel Stations</a></li>
+            <li><a href="/admin/users">Users</a></li>
+            <li ><a href="/logout" class="btn-danger">Logout</a></li>
+        </ul>
+            
+    </nav>
+</header>
+
+<div class="container">
+    <h2>Edit Fuel Station</h2>
+    <form action="/admin/users/<%= station._id %>/edit" method="POST">
+        <label>Name:</label>
+        <input type="text" name="name" value="<%= station.userId.name %>" required>
+
+        <label>Email:</label>
+        <input type="email" name="email" value="<%= station.userId.email %>" required>
+
+        <label>Phone:</label>
+        <input type="text" name="phone" value="<%= station.userId.phone %>" required>
+
+        <label>Location:</label>
+        <input type="text" name="location" value="<%= station.location %>" required>
+
+        <button type="submit">Update</button>
+    </form>
+</div>
+
+</body>
+</html>

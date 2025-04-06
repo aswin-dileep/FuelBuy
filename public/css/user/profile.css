@@ -1,0 +1,146 @@
+/* General Reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+    
+}
+/* Navbar */
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 50px;
+    background-color: rgba(18, 18, 18, 0.9); /* Dark semi-transparent */
+    color: white;
+    position: fixed;
+    top: 0;
+    width: 100%;
+    z-index: 1000;
+}
+
+.logo {
+    display: flex;
+    flex-direction: column;
+    color: white;
+    font-weight: bold;
+}
+
+.fuel {
+    color: white;
+    font-size: 22px;
+}
+
+.buddy {
+    color: #4CAF50;
+    font-size: 22px;
+}
+
+.logo p {
+    font-size: 12px;
+    color: #aaa;
+}
+
+.nav-links {
+    list-style: none;
+    display: flex;
+    gap: 25px;
+}
+
+.nav-links li {
+    display: inline;
+}
+
+.nav-links a {
+    text-decoration: none;
+    color: white;
+    font-size: 16px;
+    font-weight: bold;
+    transition: 0.3s ease;
+}
+
+.nav-links a:hover, .nav-links .active {
+    color: #4CAF50;
+    border-bottom: 2px solid #4CAF50;
+}
+
+/* logout button */
+
+.btn-danger {
+    background-color: #dc3545; /* Bootstrap Danger Red */
+    color: white; /* White text */
+    padding: 10px 20px; /* Padding for a good button size */
+    font-size: 16px;
+    font-weight: bold;
+    border: none;
+    border-radius: 5px; /* Slightly rounded corners */
+    cursor: pointer;
+    transition: 0.3s ease-in-out;
+}
+
+.btn-danger:hover {
+    background-color: #c82333; /* Darker red on hover */
+}
+
+.btn-danger:active {
+    background-color: #a71d2a; /* Even darker red when clicked */
+    transform: scale(0.98); /* Slight shrink effect */
+}
+
+.btn-danger:disabled {
+    background-color: #e4606d;
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+/* Footer */
+/* Ensure the page takes full height */
+html, body {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+.container {
+    max-width: 500px;
+    margin: 80px auto;
+    background: #fff;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+label {
+    display: block;
+    margin: 15px 0 5px;
+    font-weight: bold;
+}
+
+input {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+button {
+    margin-top: 20px;
+    background-color: #4CAF50;
+    border: none;
+    padding: 10px;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    width: 100%;
+}
+
+/* Footer always at bottom */
+footer {
+    text-align: center;
+    padding: 15px;
+    background-color: #000;
+    color: white;
+    margin-top: auto; /* Pushes footer to the bottom */
+    width: 100%;
+}
+
