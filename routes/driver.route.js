@@ -46,18 +46,22 @@ router.get('/orders', async (req, res) => {
             return res.status(404).send('Driver not found.');
         }
 
-        // Fetch assigned orders
-        const orders = await Orders.find({ assignedDriver: driver._id })
+        // Fetch assigned orders that are not delivered
+        const orders = await Orders.find({ 
+                assignedDriver: driver._id, 
+                status: { $ne: "Delivered" } // 👈 exclude delivered orders
+            })
             .populate('userId', 'name')
             .populate('fuelId', 'type');
 
-        // Render the orders page with the fetched orders
+        // Render the orders page with the filtered orders
         res.render('driver/orders', { orders });
     } catch (err) {
         console.error('Error fetching assigned orders:', err);
         res.status(500).send('Server Error');
     }
 });
+
 
 // Route to display order details
 router.get('/orders/:orderId', async (req, res) => {
@@ -77,6 +81,7 @@ router.get('/orders/:orderId', async (req, res) => {
 });
 
 // Route to update order status
+// Route to update order status via AJAX and reduce vehicle capacity if delivered
 router.put('/orders/:orderId/status', async (req, res) => {
     try {
         const { orderId } = req.params;
@@ -99,6 +104,25 @@ router.put('/orders/:orderId/status', async (req, res) => {
             return res.status(404).send('Order not found.');
         }
 
+        // ✅ If delivered, reduce vehicle capacity
+        if (status === 'Delivered') {
+            const driver = await Driver.findOne({ userId: req.session.userId });
+            if (!driver) {
+                return res.status(401).send("Driver not found or unauthorized.");
+            }
+
+            const vehicle = await Vehicle.findOne({ driverId: driver._id });
+
+            if (vehicle) {
+                const newCapacity = vehicle.currentCapacity - order.quantity;
+                vehicle.currentCapacity = newCapacity < 0 ? 0 : newCapacity;
+                await vehicle.save();
+                console.log("Vehicle capacity updated to:", vehicle.currentCapacity);
+            } else {
+                console.log("No vehicle assigned to driver.");
+            }
+        }
+
         res.status(200).send('Order status updated successfully.');
     } catch (err) {
         console.error('Error updating order status:', err);
@@ -106,10 +130,11 @@ router.put('/orders/:orderId/status', async (req, res) => {
     }
 });
 
+
 router.post("/update-order-status", async (req, res) => {
     try {
-        const { orderId, status } = req.body; // Use "status" to match the form field name
-
+        const { orderId, status } = req.body;
+        cosole.log("This is working...")
         // Validate input
         if (!orderId || !status) {
             return res.status(400).json({ error: "Invalid request data." });
@@ -121,14 +146,31 @@ router.post("/update-order-status", async (req, res) => {
         if (!order) {
             return res.status(404).json({ error: "Order not found." });
         }
+        onsole.log(status)
+        // If status is "Delivered", reduce vehicle's currentCapacity
+        if (status === 'Delivered') {
+            const driver = await Driver.findOne({ userId: req.session.userId });
+            if (!driver) {
+                return res.status(401).json({ error: "Driver not found or unauthorized." });
+            }
 
-        res.redirect("/driver/orders"); // Redirect to the previous page
+            const vehicle = await Vehicle.findOne({ driverId: driver._id });
+            console.log(vehicle)
+            if (vehicle) {
+                const newCapacity = vehicle.currentCapacity - order.quantity;
+                vehicle.currentCapacity = newCapacity < 0 ? 0 : newCapacity; // Make sure it doesn't go negative
+                await vehicle.save();
+            }
+        }
+
+        res.redirect("/driver/orders");
 
     } catch (error) {
         console.error("Error updating order status:", error);
         res.status(500).json({ error: "Internal server error." });
     }
 });
+
 
 // Vehicles Page - Show Available Vehicles
 router.get("/vehicles", async (req, res) => {
@@ -204,7 +246,6 @@ router.get("/my-vehicle", async (req, res) => {
 
 router.post("/my-vehicle/release", async (req, res) => {
     try {
-        
         const driver = await Driver.findOne({ userId: req.session.userId });
         if (!driver) {
             return res.status(401).send("Unauthorized: Please log in.");
@@ -216,19 +257,22 @@ router.post("/my-vehicle/release", async (req, res) => {
             return res.redirect("/driver/vehicles");
         }
 
-        // Update vehicle status to "Available" and remove driver association
+        // Update vehicle status and remove driver association
         await Vehicle.findByIdAndUpdate(myVehicle._id, { 
             status: "Available", 
-            driverId: null // Remove driver from vehicle
+            driverId: null
         });
 
-        res.redirect("/driver/vehicles");
+        // ✅ Update driver status to "Available"
+        await Driver.findByIdAndUpdate(driver._id, { status: "Available" });
 
+        res.redirect("/driver/vehicles");
     } catch (error) {
         console.error("Error releasing vehicle:", error);
         res.status(500).send("Internal Server Error");
     }
 });
+
 
 // Occupy Vehicle - Driver Assigns a Vehicle
 router.post("/vehicles/occupy/:vehicleId", async (req, res) => {

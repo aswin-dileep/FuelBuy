@@ -113,7 +113,7 @@ router.get('/fuelstations/:id/edit', async (req, res) => {
     res.render('admin/edit_fuelstation', { station });
 });
 
-// POST: Update fuel station
+
 router.post('/fuelstations/:id/edit', async (req, res) => {
     const { name, email, phone, location } = req.body;
 

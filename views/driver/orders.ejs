@@ -15,9 +15,8 @@
         </div>
         <ul class="nav-links">
             <li><a href="/driver" class="active">Home</a></li>
-            <li><a href="/driver/orders">My Orders</a></li>
-            <li><a href="#">Stock Update</a></li>
-            <li><a href="#">Orders</a></li>
+            <li><a href="/driver/orders">My Orders</a></li>              
+            <li><a href="/driver/vehicles">Vehicles</a></li>
             <li><a href="/logout" class="btn-danger">Logout</a></li>
         </ul>
     </div>
@@ -60,19 +59,19 @@
     </div>
 
     <script>
-        // Function to get driver's current location and open Google Maps with directions
+        // Track order on Google Maps
         function trackOrder(orderLat, orderLon) {
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(
                     (position) => {
                         const driverLat = position.coords.latitude;
                         const driverLon = position.coords.longitude;
-                        const googleMapsUrl = `https://www.google.com/maps/dir/?api=1&origin=${driverLat},${driverLon}&destination=${orderLat},${orderLon}`;
-                        window.open(googleMapsUrl, '_blank');
+                        const url = `https://www.google.com/maps/dir/?api=1&origin=${driverLat},${driverLon}&destination=${orderLat},${orderLon}`;
+                        window.open(url, '_blank');
                     },
                     (error) => {
-                        console.error('Error obtaining location:', error);
-                        alert('Unable to retrieve your location. Please ensure location services are enabled.');
+                        console.error('Error getting location:', error);
+                        alert('Unable to retrieve your location.');
                     },
                     { timeout: 10000 }
                 );
@@ -81,52 +80,54 @@
             }
         }
 
-        // Function to calculate distance between two coordinates using the Haversine formula
+        // Calculate Haversine distance
         function calculateDistance(lat1, lon1, lat2, lon2) {
             const toRadians = (angle) => (angle * Math.PI) / 180;
-            const R = 6371; // Earth's radius in kilometers
+            const R = 6371;
             const dLat = toRadians(lat2 - lat1);
             const dLon = toRadians(lon2 - lon1);
-            const a =
-                Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-                Math.cos(toRadians(lat1)) *
-                Math.cos(toRadians(lat2)) *
-                Math.sin(dLon / 2) * Math.sin(dLon / 2);
+            const a = Math.sin(dLat / 2) ** 2 +
+                      Math.cos(toRadians(lat1)) * Math.cos(toRadians(lat2)) *
+                      Math.sin(dLon / 2) ** 2;
             const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-            return R * c; // Distance in kilometers
+            return R * c;
         }
 
-        // Function to update distances in the table
-        function updateDistances(driverLat, driverLon) {
-            const distanceCells = document.querySelectorAll('.distance-cell');
-            distanceCells.forEach(cell => {
-                const orderLat = parseFloat(cell.getAttribute('data-lat'));
-                const orderLon = parseFloat(cell.getAttribute('data-lon'));
-                const distance = calculateDistance(driverLat, driverLon, orderLat, orderLon).toFixed(2);
-                cell.textContent = `${distance} km`;
-            });
-        }
-
-        // Function to get driver's current location and update distances
-        function getDriverLocation() {
+        // Get driver's current location and sort orders
+        function getDriverLocationAndSortOrders() {
             if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(
-                    (position) => {
-                        const { latitude, longitude } = position.coords;
-                        updateDistances(latitude, longitude);
-                    },
-                    (error) => {
-                        console.error('Error obtaining location:', error);
-                    },
-                    { timeout: 10000 }
-                );
+                navigator.geolocation.getCurrentPosition((position) => {
+                    const driverLat = position.coords.latitude;
+                    const driverLon = position.coords.longitude;
+
+                    const rows = Array.from(document.querySelectorAll('#orders-table-body tr'));
+
+                    const rowsWithDistance = rows.map(row => {
+                        const cell = row.querySelector('.distance-cell');
+                        const orderLat = parseFloat(cell.getAttribute('data-lat'));
+                        const orderLon = parseFloat(cell.getAttribute('data-lon'));
+                        const distance = calculateDistance(driverLat, driverLon, orderLat, orderLon);
+                        cell.textContent = `${distance.toFixed(2)} km`;
+                        return { row, distance };
+                    });
+
+                    // Sort rows by distance
+                    rowsWithDistance.sort((a, b) => a.distance - b.distance);
+
+                    const tableBody = document.getElementById('orders-table-body');
+                    tableBody.innerHTML = "";
+                    rowsWithDistance.forEach(item => tableBody.appendChild(item.row));
+
+                }, (error) => {
+                    console.error('Error getting driver location:', error);
+                }, { timeout: 10000 });
             } else {
-                console.error('Geolocation is not supported by this browser.');
+                console.error('Geolocation not supported');
             }
         }
 
-        // Call the function to get the driver's location and update distances
-        getDriverLocation();
+        // Call on page load
+        getDriverLocationAndSortOrders();
     </script>
 </body>
 </html>

@@ -258,7 +258,8 @@ router.get("/order-details/:orderId", async (req, res) => {
 // Get available drivers
 router.get("/get-available-drivers", async (req, res) => {
     try {
-        const drivers = await Driver.find({ status: "Available" }).populate("userId", "name");
+        const fuelstation = await Fuelstations.find({userId:req.session.userId})
+        const drivers = await Driver.find({ status: "Available" ,fuelStationId:req.session.userId}).populate("userId", "name");
         console.log("Available drivers:", drivers); // Debugging line
         res.json(drivers);
     } catch (error) {
