@@ -43,7 +43,8 @@
                                     <a href="/user/feedback/<%= order._id %>">
                                         <button style="background-color: orange; color: white;">Give Feedback</button>
                                     </a>
-                                <% } else { %>
+                                    <% } else if(order.status === "Cancelled" || order.status==="Refunded") { %>
+                                <% } else  { %>
                                     <a href="/user/track-order/<%= order._id %>">
                                         <button style="background-color: green; color: white;">Track</button>
                                     </a>

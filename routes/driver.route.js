@@ -253,6 +253,8 @@ router.post("/my-vehicle/release", async (req, res) => {
 
         // Find the vehicle assigned to the driver
         const myVehicle = await Vehicle.findOne({ driverId: driver._id });
+        myVehicle.currentCapacity = myVehicle.capacity;
+        myVehicle.save()
         if (!myVehicle) {
             return res.redirect("/driver/vehicles");
         }

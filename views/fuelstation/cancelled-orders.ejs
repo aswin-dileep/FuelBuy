@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Cancelled Orders</title>
+    <link rel="stylesheet" href="/css/fuelstation/orders.css">
+</head>
+<body>
+
+<%- include('sidebar') %>
+
+<div class="main-content">
+    <div class="container">
+        <h2>Cancelled Orders</h2>
+
+        <% if (orders.length > 0) { %>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Customer Name</th>
+                        <th>Quantity (Liters)</th>
+                        <th>Status</th>
+                        <th>Refund</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% orders.forEach(order => { %>
+                        <tr>
+                            <td><%= order.userId.name %></td>
+                            <td><%= order.quantity %></td>
+                            <td><%= order.status %></td>
+                            <td>
+                                <% if (order.status === "Cancelled") { %>
+                                    <form action="/fuelstation/order/refund/<%= order._id %>" method="POST" onsubmit="return confirm('Refund this order?');">
+                                        <button class="btn-refund">Refund</button>
+                                    </form>
+                                <% } else { %>
+                                    Refunded
+                                <% } %>
+                            </td>
+                        </tr>
+                    <% }) %>
+                </tbody>
+            </table>
+        <% } else { %>
+            <p>No cancelled orders.</p>
+        <% } %>
+    </div>
+</div>
+
+</body>
+</html>

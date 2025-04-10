@@ -156,3 +156,15 @@ th {
     cursor: not-allowed;
 }
 
+.btn-refund {
+    background-color: #4caf50;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.btn-refund:hover {
+    background-color: #388e3c;
+}

@@ -60,7 +60,7 @@ router.get('/fuelstations', async (req, res) => {
         });
 
         nearbyStations = nearbyStations
-            .filter(station => station.distance !== "N/A" && station.distance <= 100)
+            .filter(station => station.distance !== "N/A" && station.distance <= 10)
             .sort((a, b) => a.distance - b.distance);
 
         res.render('user/fuelstations', { stations: nearbyStations, session: req.session });
@@ -611,5 +611,36 @@ router.post('/profile/edit', async (req, res) => {
         res.status(500).send("Update failed");
     }
 });
+
+router.post('/order/cancel/:id', async (req, res) => {
+    try {
+        const orderId = req.params.id;
+
+        const order = await Order.findById(orderId);
+
+        if (!order) {
+            return res.status(404).send("Order not found.");
+        }
+
+        // Optional: Check if the logged-in user owns this order
+        if (order.userId.toString() !== req.session.userId) {
+            return res.status(403).send("Unauthorized.");
+        }
+
+        if (order.status === 'Delivered') {
+            return res.status(400).send("Cannot cancel a delivered order.");
+        }
+
+        order.status = 'Cancelled';
+        await order.save();
+
+        res.redirect('/user/my-orders');
+    } catch (err) {
+        console.error("Error cancelling order:", err);
+        res.status(500).send("Server Error");
+    }
+});
+
+
 
 module.exports = router;

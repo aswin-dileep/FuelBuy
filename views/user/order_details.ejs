@@ -48,6 +48,12 @@
         </table>
 
         <a href="/user/my-orders" class="btn">Back to Orders</a>
+
+        <% if (order.status != 'Delivered' && order.status != 'Refunded' ) { %>
+            <form action="/user/order/cancel/<%= order._id %>" method="POST" onsubmit="return confirm('Are you sure you want to cancel this order?');" style="display: inline-block; margin-left: 10px;">
+                <button type="submit" class="btn cancel-btn">Cancel Order</button>
+            </form>
+        <% } %>
     </div>
 
     <!-- Footer -->

@@ -204,30 +204,28 @@ router.get("/orders", async (req, res) => {
             return res.redirect('/login');
         }
 
-        // Find the fuel station associated with the logged-in user
         const fuelStation = await Fuelstations.findOne({ userId: fuelstationId });
 
         if (!fuelStation) {
             return res.status(404).send("Fuel station not found.");
         }
 
-        // Fetch orders for the fuel station and populate necessary fields
         let orders = await Order.find({ fuelStationId: fuelStation._id })
-            .populate('userId', 'name') // Populate customer name
+            .sort({ createdAt: -1 }) // ✅ Latest orders first
+            .populate('userId', 'name')
             .populate({
                 path: 'assignedDriver',
-                populate: { path: 'userId', select: 'name' } // Populate driver's user details
+                populate: { path: 'userId', select: 'name' }
             });
 
-        // Calculate distance for each order
         orders = orders.map(order => {
-            let distance = "N/A"; // Default value
+            let distance = "N/A";
 
             if (order.addressType === "location" && order.latitude && order.longitude) {
                 distance = calculateDistance(
                     fuelStation.latitude, fuelStation.longitude,
                     order.latitude, order.longitude
-                ).toFixed(2); // Round to 2 decimal places
+                ).toFixed(2);
             }
 
             return { ...order.toObject(), distance };
@@ -240,6 +238,7 @@ router.get("/orders", async (req, res) => {
         res.status(500).send("Server Error");
     }
 });
+
 
 
 router.get("/order-details/:orderId", async (req, res) => {
@@ -449,5 +448,45 @@ router.get('/feedbacks', async (req, res) => {
         res.status(500).send("Internal Server Error");
     }
 });
+
+router.post('/order/refund/:id', async (req, res) => {
+    try {
+        const order = await Order.findById(req.params.id);
+
+        if (!order) return res.status(404).send("Order not found.");
+
+        if (order.status !== 'Cancelled') {
+            return res.status(400).send("Only cancelled orders can be refunded.");
+        }
+
+        order.status = 'Refunded';
+        await order.save();
+
+        res.redirect('/fuelstation/cancelled-orders');
+    } catch (err) {
+        console.error("Error processing refund:", err);
+        res.status(500).send("Server Error");
+    }
+});
+
+router.get('/cancelled-orders', async (req, res) => {
+    try {
+        const fuelstationId = req.session.userId;
+
+        if (!fuelstationId) return res.redirect('/login');
+
+        const fuelStation = await Fuelstations.findOne({ userId: fuelstationId });
+
+        const cancelledOrders = await Order.find({ fuelStationId: fuelStation._id, status: 'Cancelled' })
+            .populate('userId', 'name');
+
+        res.render('fuelstation/cancelled-orders', { orders: cancelledOrders });
+
+    } catch (err) {
+        console.error("Error fetching cancelled orders:", err);
+        res.status(500).send("Server Error");
+    }
+});
+
 
 module.exports = router;

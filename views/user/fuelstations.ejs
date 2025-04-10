@@ -35,9 +35,6 @@
         }
 
 
-
-
-
         // Check if we already have lat/lng stored
         window.onload = function () {
             let storedLat = sessionStorage.getItem("userLat");
@@ -66,7 +63,7 @@
 
             <div class="stations-grid">
                 <% if (stations.length===0) { %>
-                    <p>No fuel stations found within 50 km.</p>
+                    <p>No fuel stations found within 10 km.</p>
                     <% } else { %>
                         <% stations.forEach((station)=> { %>
                             <div class="station-card">
@@ -87,6 +84,7 @@
             </div>
         </div>
 
+    
         <footer>
             <p>&copy; 2025 FuelBuddy. All rights reserved.</p>
         </footer>
