@@ -1,70 +1,153 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Payment Successful - Fuel Service</title>
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-    <style>
-        .success-animation {
-            animation: scaleUp 0.5s ease-in-out;
-        }
-        @keyframes scaleUp {
-            0% { transform: scale(0.8); opacity: 0; }
-            100% { transform: scale(1); opacity: 1; }
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Payment Successful - Fuel Service</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <style>
+    .success-animation {
+      animation: scaleUp 0.5s ease-in-out;
+    }
+    @keyframes scaleUp {
+      0% {
+        transform: scale(0.8);
+        opacity: 0;
+      }
+      100% {
+        transform: scale(1);
+        opacity: 1;
+      }
+    }
+
+    /* ✅ Navbar Styling */
+    header {
+      background-color: #1f2937; /* Tailwind's gray-800 */
+      padding: 1rem 2rem;
+    }
+
+    .navbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      max-width: 1200px;
+      margin: auto;
+    }
+
+    .logo {
+      color: #fff;
+    }
+
+    .logo .fuel {
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: #3b82f6; /* Tailwind's blue-500 */
+    }
+
+    .logo p {
+      font-size: 0.85rem;
+      color: #d1d5db; /* Tailwind's gray-300 */
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 1rem;
+      list-style: none;
+    }
+
+    .nav-links li a {
+      color: #f9fafb; /* Tailwind's gray-50 */
+      text-decoration: none;
+      font-weight: 500;
+      transition: color 0.3s;
+    }
+
+    .nav-links li a:hover {
+      color: #3b82f6; /* blue-500 */
+    }
+
+    .btn-danger {
+      background-color: #ef4444; /* red-500 */
+      padding: 0.5rem 1rem;
+      border-radius: 0.375rem;
+      color: white;
+    }
+
+    .btn-danger:hover {
+      background-color: #dc2626; /* red-600 */
+    }
+  </style>
 </head>
 <body class="bg-gray-100">
-    <%- include('header.ejs') %>
 
-    <div class="min-h-screen flex items-center justify-center px-4">
-        <div class="bg-white rounded-lg shadow-lg p-8 max-w-2xl w-full success-animation">
-            <div class="text-center mb-6">
-                <div class="text-green-500 mx-auto mb-4">
-                    <svg class="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                    </svg>
-                </div>
-                <h1 class="text-3xl font-bold text-gray-800 mb-2">Payment Successful!</h1>
-                <p class="text-gray-600">Thank you for your order. Your payment has been processed successfully.</p>
-            </div>
+  <!-- ✅ Navbar -->
+  <header>
+    <nav class="navbar">
+      <div class="logo">
+        <span class="fuel">Customer</span>
+        <p>Doorstep Fuel Delivery</p>
+      </div>
+      <ul class="nav-links">
+        <li><a href="/user">Home</a></li>
+        <li><a href="/user/fuelstations">Fuel Stations</a></li>
+        <li><a href="/user/my-orders">My Orders</a></li>
+        <li><a href="/user/profile">Profile</a></li>
+        <li><a href="/" class="btn-danger">Logout</a></li>
+      </ul>
+    </nav>
+  </header>
 
-            <div class="bg-gray-50 rounded-lg p-6 mb-6">
-                <h2 class="text-xl font-semibold text-gray-800 mb-4">Order Details</h2>
-                
-                <div class="space-y-3">
-                    <div class="flex justify-between">
-                        <span class="text-gray-600">Order ID:</span>
-                        <span class="text-gray-800 font-medium"><%= order._id %></span>
-                    </div>
-                    <div class="flex justify-between">
-                        <span class="text-gray-600">Amount Paid:</span>
-                        <span class="text-gray-800 font-medium">₹<%= (order.totalPrice).toFixed(2) %></span>
-                    </div>
-                    <div class="flex justify-between">
-                        <span class="text-gray-600">Payment Method:</span>
-                        <span class="text-gray-800 font-medium">**** **** **** <%= payment.cardLast4 %></span>
-                    </div>
-                    <div class="flex justify-between">
-                        <span class="text-gray-600">Date:</span>
-                        <span class="text-gray-800 font-medium"><%= new Date(order.createdAt).toLocaleDateString() %></span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="text-center">
-                <p class="text-gray-600 mb-4">A confirmation email has been sent to <span class="text-blue-600"><%= payment.email %></span></p>
-                <div class="flex justify-center space-x-4">
-                    <a href="/user/my-orders" class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors">
-                        View Orders
-                    </a>
-                    <a href="/user" class="bg-gray-200 text-gray-800 px-6 py-2 rounded-lg hover:bg-gray-300 transition-colors">
-                        Return Home
-                    </a>
-                </div>
-            </div>
+  <!-- ✅ Success Message -->
+  <div class="min-h-screen flex items-center justify-center px-4">
+    <div class="bg-white rounded-lg shadow-lg p-8 max-w-2xl w-full success-animation">
+      <div class="text-center mb-6">
+        <div class="text-green-500 mx-auto mb-4">
+          <svg class="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+            xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+          </svg>
         </div>
+        <h1 class="text-3xl font-bold text-gray-800 mb-2">Payment Successful!</h1>
+        <p class="text-gray-600">Thank you for your order. Your payment has been processed successfully.</p>
+      </div>
+
+      <div class="bg-gray-50 rounded-lg p-6 mb-6">
+        <h2 class="text-xl font-semibold text-gray-800 mb-4">Order Details</h2>
+
+        <div class="space-y-3">
+          <div class="flex justify-between">
+            <span class="text-gray-600">Order ID:</span>
+            <span class="text-gray-800 font-medium"><%= order._id %></span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-gray-600">Amount Paid:</span>
+            <span class="text-gray-800 font-medium">₹<%= (order.totalPrice).toFixed(2) %></span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-gray-600">Payment Method:</span>
+            <span class="text-gray-800 font-medium">**** **** **** <%= payment.cardLast4 %></span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-gray-600">Date:</span>
+            <span class="text-gray-800 font-medium"><%= new Date(order.createdAt).toLocaleDateString() %></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="text-center">
+        <p class="text-gray-600 mb-4">A confirmation email has been sent to <span class="text-blue-600"><%= payment.email %></span></p>
+        <div class="flex justify-center space-x-4">
+          <a href="/user/my-orders"
+            class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+            View Orders
+          </a>
+          <a href="/user"
+            class="bg-gray-200 text-gray-800 px-6 py-2 rounded-lg hover:bg-gray-300 transition-colors">
+            Return Home
+          </a>
+        </div>
+      </div>
     </div>
+  </div>
 </body>
 </html>

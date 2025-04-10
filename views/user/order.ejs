@@ -55,8 +55,6 @@
             <label for="date">Preferred Delivery Date:</label>
             <input type="date" id="date" name="date" required>
     
-            <label for="time">Preferred Delivery Time:</label>
-            <input type="time" id="time" name="time" required>
 
             <!-- user name passing -->
     
@@ -69,6 +67,10 @@
     </footer>
 
     <script>
+         // Set min date to today
+        const dateInput = document.getElementById('date');
+        const today = new Date().toISOString().split('T')[0]; // Format: YYYY-MM-DD
+        dateInput.setAttribute('min', today);
         const stripe = Stripe("pk_test_51MJGIsSC2OvST834bGXsL19nYD1LiSM7i8YWlLAQrC4luqz3cMR0UQFjs9BgKiZqZgS5m8Gzv3CgtzYSGZ1BYCSJ006113D2Ul"); // Replace with your Stripe Publishable Key
 
         function calculateTotalPrice() {
@@ -138,7 +140,6 @@
     const latitude = document.getElementById("latitude").value;
     const longitude = document.getElementById("longitude").value;
     const date = document.getElementById("date").value;
-    const time = document.getElementById("time").value;
     const customer = "<%= session.userId %>"; // Assuming user ID is available in session
     
     const response = await fetch("/user/create-checkout-session", {
@@ -155,7 +156,6 @@
             latitude,
             longitude,
             date,
-            time,
             customer
         })
     });
